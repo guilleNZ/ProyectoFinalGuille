@@ -21,7 +21,7 @@ const BASE_NAME = import.meta.env.VITE_BASENAME || "/";
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<Layout />} errorElement={<h1>Not found!</h1>}>
-      <Route path="/" element={<Home />} />
+      <Route path="/home" element={<Home />} />
       <Route path="/about" element={<About />} />   
       <Route path="/single/:theId" element={<Single />} />
       <Route path="/demo" element={<Demo />} />
