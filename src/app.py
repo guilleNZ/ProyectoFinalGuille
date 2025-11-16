@@ -144,6 +144,7 @@ def register():
     if 'genero' not in body:
         return jsonify({'msg': 'El campo Genero es obligatorio'}), 400
 
+  
     email = body.get("email")
     password = body.get("password")
     nombre = body.get("nombre")
@@ -206,9 +207,6 @@ def me():
 
 
 # endPoint completo ACTIVITY ----> GET POST PUT DELETE
-
-
-# Enpoint Editar Perfil y Eliminar Perfil ----> PUT DELETE
 
 # Editar usuario (PUT)
 @app.route('/api/user/<int:user_id>', methods=['PUT'])
