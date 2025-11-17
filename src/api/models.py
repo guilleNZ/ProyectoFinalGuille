@@ -187,7 +187,7 @@ class Clan(db.Model):
 
 
     def __repr__(self):
-        return f'User = {self.user_id}'
+       return f'User = {self.user_id} y Grupo = {self.grupo_id}'
     
     def serialize(self):
         return {
@@ -206,7 +206,7 @@ class Mision(db.Model):
 
 
     def __repr__(self):
-        return f'Grupo = {self.grupo_id}'
+        return f'Grupo = {self.grupo_id} y Tarea = {self.tareas_id}'
     
     def serialize(self):
         return {
@@ -225,7 +225,7 @@ class TareasAsignadas(db.Model):
 
 
     def __repr__(self):
-        return f'User = {self.user_id}'
+        return f'User = {self.user_id} y Tarea = {self.tareas_id}'
     
     def serialize(self):
         return {
