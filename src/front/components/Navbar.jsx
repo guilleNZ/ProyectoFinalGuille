@@ -7,7 +7,7 @@ export const Navbar = () => {
 			<div className="navbar-left">
 				<Link to="/">
 					<span className="navbar-brand mb-0 h1">
-						<img src='https://res.cloudinary.com/dmx0zjkej/image/upload/v1762540958/LOGO_600_x_600_muoehy.png'
+						<img src=''
 							className='logo' />
 					</span>
 				</Link>

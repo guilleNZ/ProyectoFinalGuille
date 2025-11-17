@@ -27,18 +27,17 @@ export const initialStore = () => {
     ],
     activeClanId: 1,
     tasks: [
-        { id: 101, clanId: 1, title: "Terminar el proyecto final", completed: false },
-        { id: 102, clanId: 1, title: "Preparar la presentación", completed: false },
-        { id: 103, clanId: 1, title: "Revisar el backend", completed: true },
-        { id: 104, clanId: 2, title: "Comprar pan", completed: false },
-        { id: 105, clanId: 2, title: "Llamar a la abuela", completed: false },
-        { id: 106, clanId: 3, title: "Reservar restaurante para el viernes", completed: false }
+      { id: 101, clanId: 1, title: "Terminar el proyecto final", completed: false },
+      { id: 102, clanId: 1, title: "Preparar la presentación", completed: false },
+      { id: 103, clanId: 1, title: "Revisar el backend", completed: true },
+      { id: 104, clanId: 2, title: "Comprar pan", completed: false },
+      { id: 105, clanId: 2, title: "Llamar a la abuela", completed: false },
+      { id: 106, clanId: 3, title: "Reservar restaurante para el viernes", completed: false }
     ],
-    personalBote: 100.00
-  }
-}
+    personalBote: 100.00,
+
+    // 🔥 Recuperado del revert
     token: localStorage.getItem("token") || null,
-    message: null,
     tareas: [
       {
         id: 1,
@@ -61,8 +60,8 @@ export const initialStore = () => {
         invitados: ["ana@gmail.com", "luis@gmail.com"],
         lat: 40.3926,
         lng: -3.7016,
-      },
-    ],
+      }
+    ]
   };
 };
 
@@ -78,13 +77,14 @@ export default function storeReducer(store, action = {}) {
         ...store,
         todos: store.todos.map((todo) => (todo.id === id ? { ...todo, background: color } : todo))
       };
-    
+
     // Acciones de Perfil
     case 'UPDATE_PROFILE':
       return {
         ...store,
         profile: { ...store.profile, ...action.payload }
       };
+
     case 'UPDATE_PERSONAL_BOTE':
       return {
         ...store,
@@ -94,24 +94,27 @@ export default function storeReducer(store, action = {}) {
     // Acciones de Clanes / Grupos
     case 'CREATE_CLAN':
       const newClan = {
-        id: new Date().getTime(), 
-        ...action.payload, 
-        members: 1 
+        id: new Date().getTime(),
+        ...action.payload,
+        members: 1
       };
       return {
         ...store,
         clans: [...store.clans, newClan]
       };
+
     case 'JOIN_CLAN':
       console.log("Intentando unirse al clan con código:", action.payload.code);
       return store;
+
     case 'SET_ACTIVE_CLAN':
       return {
         ...store,
         activeClanId: action.payload.clanId
       };
+
     case 'DELETE_CLAN':
-      if (!store.activeClanId) return store; 
+      if (!store.activeClanId) return store;
       const remainingClans = store.clans.filter(clan => clan.id !== store.activeClanId);
       const remainingTasks = store.tasks.filter(task => task.clanId !== store.activeClanId);
       return {
@@ -123,7 +126,7 @@ export default function storeReducer(store, action = {}) {
 
     // Acciones de Tareas de Clan 
     case 'ADD_TASK_TO_CLAN':
-      if (!store.activeClanId) return store; 
+      if (!store.activeClanId) return store;
       const newTask = {
         id: new Date().getTime(),
         clanId: store.activeClanId,
@@ -134,8 +137,7 @@ export default function storeReducer(store, action = {}) {
         ...store,
         tasks: [...store.tasks, newTask]
       };
-    
-    // ACCIÓN PARA ELIMINAR TAREA DE CLAN 
+
     case 'DELETE_CLAN_TASK':
       const updatedTasks = store.tasks.filter(task => task.id !== action.payload.taskId);
       return {

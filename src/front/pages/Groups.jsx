@@ -157,7 +157,7 @@ export const Groups = () => {
                                                 <td>{clan.category}</td>
                                                 <td>{clan.members} integrantes</td>
                                                 <td>{clan.created}</td>
-                                                <td><strong>{(store.commonBote[clan.id] || 0).toFixed(2)} €</strong></td>
+                                                <td><strong>{(0).toFixed(2)} €</strong></td>
                                             </tr>
                                         ))}
                                     </tbody>

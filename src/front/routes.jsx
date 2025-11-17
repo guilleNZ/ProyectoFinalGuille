@@ -13,6 +13,8 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import { Profile } from "./pages/Profile";
 import { Groups } from "./pages/Groups";
+import { TaskUser } from "./pages/TaskUser";
+import { Finances } from "./pages/Finances";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -34,6 +36,8 @@ export const router = createBrowserRouter(
         <Route path="/login" element={<Login/>} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/groups" element={<Groups />} />
+        <Route path="/tasks" element={<TaskUser />} /> 
+        <Route path="/finances" element={<Finances />} /> 
       </Route>
     )
 );
