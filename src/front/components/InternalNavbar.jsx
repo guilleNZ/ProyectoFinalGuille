@@ -12,7 +12,7 @@ export const InternalNavbar = () => {
           </Link>
         </div>
 
-         <div className="d-flex align-items-center gap-2 ms-3">
+         <div className="d-flex align-items-center gap-2 ms-2 left-menu">
           <Link to="/profile" className="btn custom2-btn about-btn">
             PERFIL
           </Link>
@@ -28,7 +28,7 @@ export const InternalNavbar = () => {
         </div>
 
           {/* SEARCH BAR */}
-          <div className="flex-grow-1 d-flex justify-content-center">
+          <div className="flex-grow-1 d-flex justify-content-center search-wrapper">
             <input
               type="text"
               placeholder="Buscar..."
@@ -38,12 +38,12 @@ export const InternalNavbar = () => {
           </div>
 
 
-          <div className="d-flex align-items-center gap-2">
+          <div className="d-flex align-items-center gap-2 me-2 right-menu">
             <Link to="/home" className="btn custom-btn">
               INICIO
             </Link>
             <Link to="/about" className="btn custom-btn">
-              ACERCA DE
+              SOBRE
             </Link>
             <Link to="/logout" className="btn custom2-btn">
               CERRAR SESIÓN
