@@ -85,7 +85,7 @@ export const Footer = () => {
               <ul>
                 <li><Link to="/home">Inicio</Link></li>
                 <li><Link to="/about">Sobre Nosotros</Link></li>
-                <li<>Link</>
+                <li><Link to="/mapview">Mapa</Link></li>
 
 
               </ul>
