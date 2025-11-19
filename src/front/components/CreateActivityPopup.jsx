@@ -70,10 +70,10 @@ export const CreateActivityPopup = ({ show, handleClose, onActivityCreated, coor
 
   return (
     <Modal show={show} onHide={handleClose} centered backdrop="static" keyboard={false}>
-      <Modal.Header closeButton className="bg-dark text-light">
+      <Modal.Header closeButton className="bg-dark text-light bg_PopUp">
         <Modal.Title>Crear actividad deportiva</Modal.Title>
       </Modal.Header>
-      <Modal.Body className="bg-dark text-light">
+      <Modal.Body className="bg-dark text-light bg_PopUp">
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
             <Form.Label>Título</Form.Label>
@@ -146,7 +146,7 @@ export const CreateActivityPopup = ({ show, handleClose, onActivityCreated, coor
             <Button variant="secondary" onClick={handleClose} disabled={loading}>
               Cancelar
             </Button>
-            <Button type="submit" variant="success" className="ms-2" disabled={loading}>
+            <Button type="submit" variant="success" className="ms-2 btn_Map" disabled={loading}>
               {loading ? <Spinner size="sm" /> : "Crear"}
             </Button>
           </div>

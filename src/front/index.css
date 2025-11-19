@@ -128,7 +128,20 @@
 /* Estilo para boton MapView y Crear Actividad PopUp */
 
 body {
-  background-color: #F7F4F3; 
+  background-color: #0f1120; 
   margin: 0;                 
   min-height: 100vh;         
+}
+
+.btn_Map{
+   background-color:  #EE6C4D !important;
+   border: 0px;
+   font-weight: 600;
+}
+.btn_Map:hover{
+ background-color: #ea5029 !important;
+}
+
+.bg_PopUp{
+  background-color: #0f1b2b !important;
 }

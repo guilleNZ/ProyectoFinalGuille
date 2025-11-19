@@ -3,6 +3,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 """
 from datetime import datetime
 import os
+
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
@@ -225,6 +226,7 @@ def register():
     if 'genero' not in body:
         return jsonify({'msg': 'El campo Genero es obligatorio'}), 400
 
+  
     email = body.get("email")
     password = body.get("password")
     nombre = body.get("nombre")
@@ -389,8 +391,29 @@ def join_activity(id):
     return jsonify({"msg": "Te has unido a la actividad"}), 200
 
 
+# Obtener todos los usuarios (GET)
+@app.route('/api/users', methods=['GET'])
+@jwt_required()
+def get_users():
+    users = User.query.all()
+    users_serialized = [user.serialize() for user in users]
+    return jsonify(users_serialized), 200
+    
+# Obtener un usuario por ID (GET)
+@app.route('/api/user/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_user(user_id):
+    current_user_id = get_jwt_identity()
+    try:
+        current_user_id = int(current_user_id)
+    except (TypeError, ValueError):
+        return jsonify({'msg': 'Token inválido'}), 401
 
-# Enpoint Editar Perfil y Eliminar Perfil ----> PUT DELETE
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'msg': 'Usuario no encontrado'}), 404
+
+    return jsonify(user.serialize()), 200
 
 # Editar usuario (PUT)
 @app.route('/api/user/<int:user_id>', methods=['PUT'])

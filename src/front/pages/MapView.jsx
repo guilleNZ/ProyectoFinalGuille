@@ -114,7 +114,7 @@ export const MapView = () => {
       {/* Botón flotante para crear actividad */}
       <Button
         variant="dark"
-        className="position-absolute"
+        className="position-absolute btn_Map"
         style={{ bottom: "40px", left: "10px", zIndex: 10, padding: "20px" }}
         onClick={() => setShowPopup(true)}
       >
