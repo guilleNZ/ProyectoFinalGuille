@@ -86,7 +86,7 @@ export const Eventos = () => {
     }
   }
 
-  // lis of events from fallback
+  // list of events from fallback
   const list = events.length > 0 ? events : fallbackEvents.map(e => ({
     ...e,
     participants: [],
