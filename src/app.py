@@ -1,7 +1,7 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 from flask import Flask, request, jsonify, url_for, send_from_directory
@@ -26,6 +26,15 @@ from flask_bcrypt import Bcrypt
 
 from flask_mail import Mail, Message
 
+
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+import os
+from dotenv import load_dotenv
+import jwt
+
+load_dotenv()
+
 # from models import Person
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
@@ -33,6 +42,7 @@ static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../dist/')
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
 
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
@@ -51,17 +61,39 @@ jwt = JWTManager(app)
 
 bcrypt = Bcrypt(app)
 
-app.config.update(dict(
-    DEBUG=False,
-    MAIL_SERVER='smtp.gmail.com',
-    MAIL_PORT=587,
-    MAIL_USE_TLS=True,
-    MAIL_USE_SSL=False,
-    MAIL_USERNAME='meetfitfspt119@gmail.com',
-    MAIL_PASSWORD=os.getenv('MAIL_PASSWORD')
-))
+
+#Configuración Flask-Mail ----------------------------------------
+app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER")
+app.config['MAIL_PORT'] = int(os.getenv("MAIL_PORT"))
+app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
+app.config['MAIL_USE_TLS'] = os.getenv("MAIL_USE_TLS") == "True"
+app.config['MAIL_USE_SSL'] = os.getenv("MAIL_USE_SSL") == "True"
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER")
 
 mail = Mail(app)
+
+
+#Helper para generar token JWT-----------------------------------------
+def generate_reset_token(user_id, expires_in=3600):
+    payload = {
+        "user_id": user_id,
+        "exp": datetime.utcnow() + timedelta(seconds=expires_in)
+    }
+    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm="HS256")
+    return token
+
+def verify_reset_token(token):
+    try:
+        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+        return payload['user_id']
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+#Fin del Helper para generar token JWT-----------------------------------------
+
+
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
@@ -188,21 +220,6 @@ def block_user(user_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": "Error al bloquear usuario", "error": str(e)}), 500
-
-
-
-#prueba send-mail
-@app.route('/api/send-mail', methods=['GET'])
-def send_mail():
-    msg = Message(
-        subject='Prueba de correo de proyecto',
-        sender='meetfitfspt119@gmail.com',
-        recipients=['meetfitfspt119@gmail.com'],
-    )
-    msg.html = '<h1>Testeando envio de correo</h1>'
-    mail.send(msg)
-    return jsonify({'msg': 'Correo enviado con exito'}), 200
-
 
 
 @app.route('/api/register', methods=['POST'])
