@@ -16,10 +16,13 @@ import { Demo } from "./pages/Demo";
 import User from "./pages/User";
 import { Profile } from "./pages/Profile";
 import { Eventos } from "./components/Eventos"
+import { EventDetails } from "./components/EventDetails";
 import { Terms } from "./pages/Terms";
 import { Privacy } from "./pages/Privacy";
 import { FAQ } from "./pages/FAQ";
 import MyEvents from './pages/MyEvents'
+
+
 
 const BASE_NAME = import.meta.env.VITE_BASENAME || "/";
 
@@ -44,6 +47,8 @@ export const router = createBrowserRouter(
 
       <Route path="/mapview" element={<MapView />} />
       <Route path="/eventos" element={<Eventos />} />
+      <Route path="/events/:id" element={<EventDetails />} />
+
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/faq" element={<FAQ />} />
