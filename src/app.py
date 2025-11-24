@@ -134,6 +134,14 @@ def sitemap():
         return generate_sitemap(app)
     return send_from_directory(static_file_dir, 'index.html')
 
+@app.route('/api/hello', methods=['GET'])
+def hello():
+    return jsonify({
+        "message": "Hola desde el backend!",
+        "quote": "Sigue entrenando, vas por buen camino"
+    }), 200
+
+
 # any other endpoint will try to serve it like a static file
 
 

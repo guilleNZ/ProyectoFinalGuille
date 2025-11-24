@@ -12,6 +12,7 @@ api = Blueprint('api', __name__)
 # Allow CORS requests to this API
 CORS(api)
 
+frontend_url = "https://turbo-dollop-69p567qx67jw2x5g7-3000.app.github.dev"
 
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():
