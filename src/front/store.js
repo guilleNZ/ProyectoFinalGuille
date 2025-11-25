@@ -1,26 +1,22 @@
 export const initialStore = () => {
   const savedUser = localStorage.getItem("user");
   const savedProfile = localStorage.getItem("profile");
+  const savedToken = localStorage.getItem("token");
 
   return {
-    token: localStorage.getItem("token") || null,
+    token: savedToken || null,
     user: savedUser ? JSON.parse(savedUser) : null,
     profile: savedProfile ? JSON.parse(savedProfile) : null,
-
     friends: [],
     clans: [],
     activeClanId: null,
-
     userTasks: [],
     clanTasks: [],
-
     personalBote: 0,
     personalExpenses: [],
-
     expenses: [],
     commonBote: {},
     balances: [],
-
     chatMessages: []
   };
 };
@@ -29,16 +25,19 @@ export default function storeReducer(store, action = {}) {
   switch (action.type) {
 
     case "RESET_STORE":
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("profile");
       return initialStore();
 
     case "LOAD_DATA_FROM_BACKEND":
-      const { user, profile, userTasks, clans, clanTasks } = action.payload;
-
+      const { user, profile, userTasks, clans, clanTasks, token } = action.payload;
+      if (token) localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("profile", JSON.stringify(profile));
-
-      return {
+      return { 
         ...store,
+        token: token || store.token,
         user,
         profile,
         userTasks: userTasks || [],
@@ -153,11 +152,7 @@ export default function storeReducer(store, action = {}) {
     case "UPDATE_PROFILE":
       const updatedProfile = {
         ...store.profile,
-        ...action.payload,
-        social:
-          action.payload.social ||
-          store.profile?.social || 
-          { instagram: "", twitter: "", facebook: "" }
+        ...action.payload
       };
       localStorage.setItem("profile", JSON.stringify(updatedProfile));
       return { ...store, profile: updatedProfile };

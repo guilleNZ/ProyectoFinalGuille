@@ -28,25 +28,31 @@ const Login = () => {
         return;
       }
 
+      const user = data.user;
+
       dispatch({ type: "SET_TOKEN", payload: { token: data.token } });
       dispatch({
-        type: "LOAD_DATA_FROM_BACKEND", payload: {
-          user: data.user,
+        type: "LOAD_DATA_FROM_BACKEND",
+        payload: {
+          user,
           profile: {
-            name: data.user.name,
-            email: data.user.email,
-            avatar: data.user.avatar,
-            presentation: data.user.presentation,
-            location: data.user.location,
-            age: data.user.age,
-            phone: data.user.phone,
-            gender: data.user.gender,
-            social: data.user.social,
+            id: user.id,
+            name: user.name || "",
+            email: user.email || "",
+            photo: user.photo || "",
+            bio: user.bio || "",
+            city: user.city || "",
+            age: user.age || 0,
+            phone: user.phone || "",
+            gender: user.gender || "",
+            instagram: user.instagram || "",
+            twitter: user.twitter || "",
+            facebook: user.facebook || ""
           },
           userTasks: data.userTasks || [],
           clans: data.clans || [],
           clanTasks: data.clanTasks || []
-        }
+        },
       });
 
       navigate("/dashboard", {
