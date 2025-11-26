@@ -10,11 +10,16 @@ from flask_cors import CORS
 from api.admin import setup_admin
 from api.commands import setup_commands
 from api.routesTasks import api_tasks
+from api.extensions import mail
+from flask_mail import Mail
+
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../dist/')
 app = Flask(__name__)
+
+
 app.url_map.strict_slashes = False
 CORS(app, resources={
     r"/api/*": {
@@ -32,8 +37,23 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config.update(dict(
+    DEBUG=False,
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=587,
+    MAIL_USE_TLS=True,
+    MAIL_USE_SSL=False,
+    MAIL_USERNAME='taskflowproyect@gmail.com',
+    MAIL_PASSWORD=os.getenv('MAIL_PASSWORD')
+)),
+
+
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
+
+
+mail.init_app(app)
 
 setup_admin(app)
 setup_commands(app)
