@@ -153,23 +153,6 @@ def serve_any_other_file(path):
     response.cache_control.max_age = 0  # avoid cache memory
     return response
 
-# Endpoint: prueba envio correo -------------------------------
-@app.route("/test-email")
-def test_email():
-    try:
-        msg = Message(
-            subject="Prueba de correo",
-            sender=os.getenv("MAIL_DEFAULT_SENDER"),
-            recipients=[os.getenv("MAIL_USERNAME")],
-            body="Este es un correo de prueba."
-        )
-        mail.send(msg)
-        return {"status": "ok", "message": "Correo enviado correctamente"}
-    except Exception as e:
-        print("ERROR:", e)
-        return {"status": "error", "details": str(e)}, 500
-
-
 
 # Endpoint: solicitar recuperación -------------------------------
 @app.route("/api/forgot", methods=["POST"])
