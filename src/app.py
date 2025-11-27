@@ -263,8 +263,6 @@ def forgot_password():
     return jsonify({"message": message}), 200
 
 # Endpoint: restablecer contraseña------------------------------------
-
-
 @app.route("/api/reset/<token>", methods=["POST"])
 def reset_password(token):
     data = request.json
@@ -285,9 +283,48 @@ def reset_password(token):
     return jsonify({"message": "Contraseña restablecida correctamente."}), 200
 # FIN DE FORGOT PASSWORD Y RESET PASSWORD --------------------------------------
 
+#ENDPOINT CAMBIO DE CONTRASEÑA--------------------------------------------------
+@app.route("/api/change-password", methods=["POST"])
+@jwt_required()
+def change_password():
+    data = request.get_json(silent=True) or {}
+
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+    confirm_password = data.get("confirm_password")
+
+    # Validaciones de presencia
+    if not current_password or not new_password or not confirm_password:
+        return jsonify({"error": "Debes completar todos los campos."}), 400
+
+    # Validar confirmación
+    if new_password != confirm_password:
+        return jsonify({"error": "Las contraseñas no coinciden."}), 400
+
+    # Validación mínima de seguridad (8 caracteres)
+    if len(new_password) < 8:
+        return jsonify({"error": "La nueva contraseña debe tener al menos 8 caracteres."}), 400
+
+    # Obtener usuario autenticado mediante JWT
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"error": "Usuario no encontrado."}), 404
+
+    # Comparar contraseña actual
+    if not check_password_hash(user.password, current_password):
+        return jsonify({"error": "La contraseña actual es incorrecta."}), 400
+
+    # Actualizar hash de contraseña
+    user.password = generate_password_hash(new_password)
+    db.session.commit()
+
+    return jsonify({"message": "Contraseña cambiada correctamente."}), 200
+
+
+
 # REPORTAR USUARIO
-
-
 @app.route('/api/report_user/<int:user_id>', methods=['POST'])
 @jwt_required()
 def report_user(user_id):

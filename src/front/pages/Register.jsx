@@ -54,8 +54,8 @@ export function Register() {
         <TextInput name="apellidos" value={form.apellidos} onChange={onChange} placeholder="Apellidos" required={false} />
 
         <TextInput name="email" value={form.email} onChange={onChange} placeholder="email@example.com" type="email" />
-        <TextInput name="password" value={form.password} onChange={onChange} placeholder="********" withToggle />
         <div className="small-note">La contraseña debe tener 8 o más caracteres.</div>
+        <TextInput name="password" value={form.password} onChange={onChange} placeholder="********" withToggle />
 
         <TextInput name="telefono" value={form.telefono} onChange={onChange} placeholder="+34 600 123 123" required={false} />
         <TextInput name="edad" value={form.edad} onChange={onChange} placeholder="Edad" type="number" required={false} />
