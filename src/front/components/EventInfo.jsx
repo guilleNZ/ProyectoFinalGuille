@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
 
+
 export default function EventInfo({ event }) {
   const [show, setShow] = useState(false);
 

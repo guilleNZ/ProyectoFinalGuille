@@ -49,7 +49,7 @@ export default function UpdateUser({ refreshUser, user_bio, user_sports, user_le
         <Form.Label><h5>Biografía</h5></Form.Label>
         <Form.Control
           as="textarea"
-          placeholder="Hola soy Sergio..."
+          placeholder="¡Hola! Soy ... "
           value={info.bio}
           onChange={(e) => setInfo({ ...info, bio: e.target.value })}
           rows={3}
@@ -83,7 +83,7 @@ export default function UpdateUser({ refreshUser, user_bio, user_sports, user_le
         <Form.Label><h5>Apellidos</h5></Form.Label>
         <Form.Control
           type="text"
-          placeholder="Alvarez López..."
+          placeholder="..."
           value={info.lastname}
           onChange={(e) => setInfo({ ...info, lastname: e.target.value })}
           className="mf-input"

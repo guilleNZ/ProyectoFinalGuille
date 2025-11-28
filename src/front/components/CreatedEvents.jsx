@@ -3,6 +3,8 @@ import { user } from '../jsApiComponents/user';
 import { useNavigate } from 'react-router-dom';
 import EventInfo from './EventInfo';
 
+
+
 export default function CreatedEvents() {
   const [createdEvents, setCreatedEvents] = useState([]);
   const navigate = useNavigate();

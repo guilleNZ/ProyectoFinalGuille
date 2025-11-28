@@ -79,7 +79,7 @@ toast.success("🔐 Sesión cerrada correctamente");
     <div className="row flex-grow-1 g-0">
 
         {/* SIDEBAR */}
-        <div className="col-12 col-md-3 border-end bg-dark text-light p-3">
+        <div className="col-12 col-md-3 border-end bg-dark text-light p-3 mt-4">
           <h5 className="text-center mb-4">Mi Cuenta</h5>
 
           <button
