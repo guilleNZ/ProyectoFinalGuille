@@ -582,6 +582,28 @@ def join_activity(id):
 # Endpoint: calificación de actividad
 
 
+@app.route("/api/activities/<int:id>/leave", methods=["POST"])
+@jwt_required()
+def leave_activity(id):
+    user_id = int(get_jwt_identity())
+    activity = Activity.query.get(id)
+    if not activity:
+        return jsonify({"error": "Actividad no encontrada"}), 404
+    user = User.query.get(user_id)
+    if user not in activity.participants:
+        return jsonify({"error": "No estás inscrito en esta actividad"}), 400
+    activity.participants.remove(user)
+    db.session.commit()
+    return jsonify({"msg": "Has dejado la actividad exitosamente"}), 200
+
+
+
+
+
+
+
+
+
 @app.route("/api/activities/<int:id>/rate", methods=["POST"])
 @jwt_required()
 def rate_activity(id):

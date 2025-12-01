@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./EventDetails.css";
@@ -45,7 +46,6 @@ export const EventDetails = () => {
         setEvent(data);
         setRating(data.rating || 0);
       } catch (err) {
-        console.error(err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -82,7 +82,7 @@ export const EventDetails = () => {
   const unsubscribeEvent = async (eventId) => {
     try {
       const token = localStorage.getItem("JWT-STORAGE-KEY");
-      const resp = await fetch(`${BASE_URL}/api/activities/${eventId}/leave`, {
+      const resp = await fetch(`${BASE_URL}api/activities/${eventId}/leave`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -90,7 +90,10 @@ export const EventDetails = () => {
         },
       });
       if (!resp.ok) throw new Error("No se pudo dar de baja");
-      alert("Te has dado de baja del evento");
+
+      if (resp.ok) {
+        alert("Te has dado de baja del evento");
+      }
     } catch (err) {
       alert(err.message);
     }
@@ -105,7 +108,7 @@ export const EventDetails = () => {
           title="Darse de baja del evento"
           onClick={() => {
             unsubscribeEvent(event.id);
-            alert("Se ha dado de baja del evento");
+            ;
           }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" height="32px" viewBox="0 -960 960 960" width="32px" fill="#817DF9">
@@ -145,7 +148,14 @@ export const EventDetails = () => {
           <p><IconCalendar className="icon-info" /> <strong>Fecha y hora:</strong> {event.date ? new Date(event.date).toLocaleString() : "No especificado"}</p>
 
           {event.latitude != null && event.longitude != null && (
-            <p><IconLocation className="icon-info" /> <strong>Ubicación:</strong> Lat: {event.latitude.toFixed(5)}, Lng: {event.longitude.toFixed(5)}</p>
+            <p><IconLocation className="icon-info" /><strong>Ubicación:</strong><a
+              href={`https://www.google.com/maps?q=${event.latitude},${event.longitude}`}
+              target="_blank"
+              rel="noreferrer"
+              className=""
+            >
+              Ver en Google Maps📍
+            </a></p>
           )}
 
           <p><IconGroup className="icon-info" /> <strong>Participantes:</strong> {(event.participants?.length ?? 0)}/{event.max_participants ?? 0}</p>

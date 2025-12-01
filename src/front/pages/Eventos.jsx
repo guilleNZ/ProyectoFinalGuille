@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Typography, Card, CardContent, CardMedia, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import {sportImages}  from "../jsApiComponents/sportsImages"
 
 export const Eventos = () => {
   const [events, setEvents] = useState([]);
@@ -10,7 +11,6 @@ export const Eventos = () => {
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-  // 🟣 Fallback mock events
   const fallbackEvents = [
     {
       id: 1,
@@ -89,7 +89,6 @@ export const Eventos = () => {
 
   ];
 
-  // 🟦 Trae eventos del backend
   const fetchEvents = async () => {
     try {
       const resp = await fetch(`${BASE_URL}/api/activities`);
@@ -107,13 +106,10 @@ export const Eventos = () => {
     return () => window.removeEventListener("activities-updated", fetchEvents);
   }, []);
 
-  // 🟧 Usa backend o fallback
   const list = events.length > 0 ? events : fallbackEvents;
 
-  // 🎯 Deportes únicos (sin duplicados)
   const sportsUnique = Array.from(new Set(list.map((e) => e.sport)));
 
-  // 🔍 Filtro por búsqueda + deporte
   const filteredList = list.filter((event) => {
     const matchesSearch =
       event.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -124,6 +120,12 @@ export const Eventos = () => {
     return matchesSearch && matchesSport;
   });
 
+
+
+
+  const getSportImage = (sport) => {
+    return sportImages[sport] ?? "https://via.placeholder.com/400";
+  }
   // ➕ JOIN EVENT
   const joinEvent = async (event) => {
     if (event.participants.length >= event.max_participants) {
@@ -153,12 +155,17 @@ export const Eventos = () => {
     }
   };
 
+
+
+
+
+
+  
   return (
     <>
-      {/* 🔎 FILTROS RESPONSIVE (Bootstrap GRID) */}
       <div className="container mt-5">
         <div className="row g-3 justify-content-center">
-          {/* Buscar */}
+
           <div className="col-12 col-md-6">
             <input
               className="mf-neon-input form-control w-100"
@@ -168,7 +175,6 @@ export const Eventos = () => {
             />
           </div>
 
-          {/* Select deporte */}
           <div className="col-12 col-md-6">
             <select
               className="mf-neon-input form-select w-100"
@@ -186,7 +192,6 @@ export const Eventos = () => {
         </div>
       </div>
 
-      {/* 🟦 LISTADO RESPONSIVE (Bootstrap GRID + MUI Card) */}
       <div className="container mt-5 mb-5">
         <div className="row g-4 justify-content-center">
           {filteredList.map((event) => (
@@ -209,14 +214,13 @@ export const Eventos = () => {
                   (e.currentTarget.style.transform = "scale(1)")
                 }
               >
-                {event.image && (
-                  <CardMedia
-                    component="img"
-                    height="175"
-                    image={event.image}
-                    alt={event.title}
-                  />
-                )}
+                <CardMedia
+                  component="img"
+                  height="175"
+                  image={event.image || getSportImage(event.sport)}
+                  alt={event.title}
+                />
+
 
                 <CardContent className="text-center">
                   <Typography

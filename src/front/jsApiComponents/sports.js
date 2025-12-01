@@ -1,12 +1,12 @@
 export const sports = [
+  "Yoga",
   "Running",
   "Ciclismo",
-  "Fútbol",
+  "Pilates",
   "Baloncesto",
-  "Yoga",
+  "Spinning", 
+  "Meditacion",
+  "Funcional",
+  "Caminata",
   "Natación",
-  "Crossfit",
-  "Senderismo",
-  "Pádel",
-  "Voleibol",
 ];

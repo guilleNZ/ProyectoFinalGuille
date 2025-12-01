@@ -43,12 +43,12 @@ export function Login() {
     }
 
     if (resp.status === 200 && resp.data) {
-      // Aseguramos que Layout detecta el login
+
       if (resp.data.token) {
         localStorage.setItem("token", resp.data.token);
+        toast.success("🎉 Sesión iniciada correctamente.");
+        nav("/home");
       }
-      toast.success("🎉 Sesión iniciada correctamente.");
-      nav("/home");
     }
   };
 

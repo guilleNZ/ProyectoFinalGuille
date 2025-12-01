@@ -16,6 +16,8 @@ export const CreateActivityPopup = ({ show, onActivityCreated, coordinates }) =>
   const [error, setError] = useState("");
   const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
+
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -83,6 +85,9 @@ export const CreateActivityPopup = ({ show, onActivityCreated, coordinates }) =>
   };
 
   if (!show) return null;
+
+
+
 
   return (
     <div className="footer-cta footer-cta--stable newsletter-form w-100 mx-auto">

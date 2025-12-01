@@ -42,7 +42,7 @@ export default function EventInfo({ event }) {
             href={`https://www.google.com/maps?q=${event.latitude},${event.longitude}`}
             target="_blank"
             rel="noreferrer"
-            className="mf-neon-btn w-100 mt-2 text-center"
+            className=""
           >
             Ver en Google Maps 📍
           </a>
