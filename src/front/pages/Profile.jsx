@@ -133,18 +133,18 @@ export const Profile = () => {
                         <p className="text-light opacity-75 mb-1">
                           <strong>Correo:</strong> {user_get.email}
                         </p>
-
+                        <br></br>
                         <h5>Biografía</h5>
                         <p className="text-light small">
                           {user_get.biography || "Aún no tienes biografía. ¡Añade algo!"}
                         </p>
 
-                        <hr />
+                        <hr style={{ border: "1px solid #817DF9", margin: "40px 0" }} />
                         <div className="text-start px-3">
                           <p><strong>Deporte favorito:</strong> {user_get.sports || "Sin especificar"}</p>
                           <p><strong>Nivel:</strong> {user_get.level || "Sin especificar"}</p>
                         </div>
-                        <hr />
+                        <hr style={{ border: "1px solid #817DF9", margin: "30px 0" }} />
 
                         <button className="mt-3 w-100 mf-neon-btn" onClick={() => setEditing(true)}>
                           Editar perfil

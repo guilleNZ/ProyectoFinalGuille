@@ -75,7 +75,7 @@ export default function CreatedEvents() {
             href={`https://www.google.com/maps?q=${event.latitude},${event.longitude}`}
             target="_blank"
             rel="noreferrer"
-            className="mf-neon-btn d-block mt-2 text-center"
+            className="google-map-link mf-neon-btn d-block mt-2 text-center"
           >
             Ver en Google Maps <i className="fa-solid fa-location-dot"></i>
           </a>

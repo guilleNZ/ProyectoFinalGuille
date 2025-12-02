@@ -5,11 +5,12 @@ html {
 }
 
 .btn-dark:hover {
-  background-color: #0A0A0A !important;
+  background-color: #0a0a0a !important;
   border-color: #424242 !important;
 }
 .custom-overflow {
   overflow-y: scroll;
+  border-color: #817df9 !important;
 }
 .profile-fixed-card {
   height: 80vh;
@@ -35,25 +36,25 @@ html {
 .footer-cta .newsletter-form .neon-create-btn {
   width: 90%;
   max-width: 340px;
-  background-color: #EE6C4D !important;
+  background-color: #ee6c4d !important;
   color: #fff !important;
   border: none !important;
   padding: 0.9rem 1.8rem !important;
   font-weight: 700 !important;
   border-radius: 12px !important;
   cursor: pointer !important;
-  box-shadow: 0 6px 0 #B94E34 !important;
+  box-shadow: 0 6px 0 #b94e34 !important;
   transition: all 0.2s ease !important;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 .footer-cta .newsletter-form .neon-create-btn:hover:not(:disabled) {
   transform: translateY(-3px);
-  background-color: #E45B3A !important;
-  box-shadow: 0 8px 0 #B94E34 !important;
+  background-color: #e45b3a !important;
+  box-shadow: 0 8px 0 #b94e34 !important;
 }
 .footer-cta .newsletter-form .neon-create-btn:disabled {
-  background-color: #3B3B3B !important;
+  background-color: #3b3b3b !important;
   color: #888 !important;
   cursor: not-allowed !important;
   box-shadow: none !important;
@@ -94,15 +95,15 @@ body {
 }
 /* :milky_way: Card “Stable” Global Style - MeetFit */
 .profile-stable-card {
-  background: linear-gradient(145deg, #20232D, #171a24);
+  background: linear-gradient(145deg, #20232d, #171a24);
   border-radius: 22px !important;
-  border-top: 4px solid #817DF9;
+  border-top: 4px solid #817df9;
   box-shadow: 0 4px 22px #817df9 !important;
   padding: 30px !important;
   width: 100%;
   max-width: 700px;
   margin: 0 auto !important;
-  color: #E6E6E6 !important;
+  color: #e6e6e6 !important;
 }
 /* :frame_with_picture: Avatars con borde neon */
 .profile-avatar {
@@ -110,13 +111,13 @@ body {
   height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #E3FE18;
-  box-shadow: 0 0 8px #E3FE18;
+  border: 2px solid #e3fe18;
+  box-shadow: 0 0 8px #e3fe18;
 }
 /* :label: Títulos dentro del Card */
 .profile-stable-card h4,
 .profile-stable-card h5 {
-  color: #E3FE18 !important;
+  color: #e3fe18 !important;
 }
 /* :receipt: Formularios dentro del card */
 .profile-stable-card form input,
@@ -129,27 +130,27 @@ body {
 }
 .profile-stable-card form input::placeholder,
 .profile-stable-card form textarea::placeholder {
-  color: #9F9F9F;
+  color: #9f9f9f;
 }
 
 .custom-modal-header {
-  background-color: #817DF9 !important; 
-  color:#E3FE18 !important;            
-  border-top: 4px solid #605af8;          
+  background-color: #817df9 !important;
+  color: #e3fe18 !important;
+  border-top: 4px solid #605af8;
 }
 .custom-modal-body {
-  background: linear-gradient(145deg, #20232D, #171a24);
-  color: white !important;              
+  background: linear-gradient(145deg, #20232d, #171a24);
+  color: white !important;
 }
 
 /* === :crystal_ball: INPUT / SELECT NEÓN UNIFICADO === */
 .mf-neon-input {
   width: 90% !important;
   max-width: 420px !important;
-  background: #2A2D3A !important;
+  background: #2a2d3a !important;
   color: #fff !important;
   border-radius: 12px !important;
-  border: 2px solid #817DF9 !important;
+  border: 2px solid #817df9 !important;
   padding: 0.8rem 1rem !important;
   font-weight: 500 !important;
   box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 8px transparent !important;
@@ -157,8 +158,8 @@ body {
 }
 .mf-neon-input:hover,
 .mf-neon-input:focus {
-  border-color: #E3FE18 !important;
-  box-shadow: 0 0 12px #E3FE18 !important;
+  border-color: #e3fe18 !important;
+  box-shadow: 0 0 12px #e3fe18 !important;
 }
 /* Placeholder */
 .mf-neon-input::placeholder {
@@ -166,27 +167,27 @@ body {
 }
 /* === :crystal_ball: BOTÓN PEQUEÑO DE EVENTOS === */
 .mf-neon-btn-small {
-  background-color: #EE6C4D !important;
+  background-color: #ee6c4d !important;
   color: #fff !important;
   border-radius: 10px !important;
   padding: 4px 10px !important;
   font-weight: 700 !important;
   cursor: pointer !important;
   border: none !important;
-  box-shadow: 0 4px 0 #B94E34 !important;
+  box-shadow: 0 4px 0 #b94e34 !important;
   transition: all 0.2s ease;
 }
 .mf-neon-btn-small:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 #B94E34 !important;
+  box-shadow: 0 6px 0 #b94e34 !important;
 }
 /* Botón buscar y seleccionar */
 .mf-neon-btn-purple {
-  background-color: #817DF9 !important;
-  box-shadow: 0 4px 0 #5D5AB9 !important;
+  background-color: #817df9 !important;
+  box-shadow: 0 4px 0 #5d5ab9 !important;
 }
 .mf-neon-btn-purple:hover {
-  box-shadow: 0 6px 0 #5D5AB9 !important;
+  box-shadow: 0 6px 0 #5d5ab9 !important;
   transform: translateY(-2px);
 }
 .mf-neon-input {
@@ -198,13 +199,13 @@ body {
 }
 /* Tema de autenticación oscuro */
 .auth-theme {
-  --bg: #0F1B2B;
-  --card: #1A2740;
-  --muted: #A3B1C6;
-  --text: #E8EEF7;
-  --accent: #EE6C4D;
-  --accent-hover: #EA5029;
-  --input: #0E1A2A;
+  --bg: #0f1b2b;
+  --card: #1a2740;
+  --muted: #a3b1c6;
+  --text: #e8eef7;
+  --accent: #ee6c4d;
+  --accent-hover: #ea5029;
+  --input: #0e1a2a;
   --radius: 22px;
   background: #0f1120;
   min-height: 100vh;
@@ -212,7 +213,7 @@ body {
 
 /* Contenedor general */
 .auth-theme .auth-shell {
-  min-height: calc(100vh - 80px); 
+  min-height: calc(100vh - 80px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -234,7 +235,7 @@ body {
 .auth-card-horizontal {
   display: flex;
   gap: 40px;
-  align-items: flex-start;  
+  align-items: flex-start;
 }
 
 /* Columna del formulario */
@@ -246,7 +247,7 @@ body {
 
 /* Panel lateral sencillo */
 .auth-card-side {
-  flex: 0 0 320px;                    
+  flex: 0 0 320px;
   background: rgba(255, 255, 255, 0.04);
   border-radius: 18px;
   padding: 20px 22px;
@@ -291,7 +292,6 @@ body {
   margin-bottom: 18px;
 }
 
-
 .auth-theme .auth-title {
   font-size: 22px;
   font-weight: 700;
@@ -317,7 +317,7 @@ body {
   height: 44px;
 }
 .auth-theme .input-dark.form-control::placeholder {
-  color: #7F8BA1;
+  color: #7f8ba1;
 }
 .auth-theme .input-dark.form-control:focus {
   background: var(--input);
@@ -372,7 +372,7 @@ body {
   transform: translateY(-50%);
   background: transparent;
   border: 0;
-  color: #9AB0CC;
+  color: #9ab0cc;
 }
 .auth-theme .small-note {
   font-size: 12px;
@@ -380,49 +380,53 @@ body {
   margin-top: 6px;
 }
 
+.custom-overflow {
+  background: linear-gradient(145deg, #20232d, #171a24);
+}
+
 /* Estilo para boton MapView y Crear Actividad PopUp */
 body {
-  background-color: #0F1120;
+  background-color: #0f1120;
   margin: 0;
   min-height: 100vh;
 }
 .btn_Map {
-  background-color: #EE6C4D;
-  border: 1px solid #001F54;
+  background-color: #ee6c4d;
+  border: 1px solid #001f54;
   border-radius: 5px;
-  color: #001F54;
+  color: #001f54;
   font-weight: 400;
   font-size: 1.1rem;
-  box-shadow: 0 0px 20px #93877F;
+  box-shadow: 0 0px 20px #93877f;
   transition: 0.25s ease;
 }
 .btn_Map:hover {
-  border-color: #001F54;
-  color: #E3FE18;
-  background-color: #817DF9;
+  border-color: #001f54;
+  color: #e3fe18;
+  background-color: #817df9;
 }
 .bg_PopUp {
-  background-color: #0F1B2B !important;
+  background-color: #0f1b2b !important;
 }
+
 .custom-bg {
-  background: linear-gradient(145deg, #20232D, #171a24);
+  background: linear-gradient(145deg, #20232d, #171a24);
 }
 .custom-container-bg {
-  
-  color: white;            
+  color: white;
   padding: 20px;
-  border-radius: 10px;      
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #E3FE18;
+  background: #e3fe18;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #E3FE18;
+  background: #e3fe18;
 }
 .event-scroll-wrapper {
   width: 100%;
@@ -440,10 +444,10 @@ body {
 .event-card-scroll {
   min-width: 230px;
   max-width: 230px;
-  background: #FFFFFF;
+  background: #ffffff;
   border-radius: 12px;
   padding: 15px;
-  border: 2px solid #001F54;
+  border: 2px solid #001f54;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 .event-card-scroll h5 {
@@ -451,47 +455,48 @@ body {
   margin-bottom: 8px;
 }
 .actividades-title {
-  color: #D7D5F8;
+  color: #d7d5f8;
   font-weight: bold;
   font-size: 1.5rem;
 }
 .actividades-box {
-  border: 2px solid #E3FE18;
+  border: 2px solid #e3fe18;
   border-radius: 12px;
   padding: 20px;
-  background-color: #D7D5F8;
+  background-color: #d7d5f8;
   box-shadow: 0 5px 15px rgba(129, 125, 249, 0.3);
   margin-top: 180px;
 }
 .actividades-title {
-  color: #817DF9;
+  color: #817df9;
   font-weight: bold;
   font-size: 1.5rem;
   margin-bottom: 20px;
 }
 .mf-neon-btn-orange {
-  background-color: #EE6C4D !important;
+  background-color: #ee6c4d !important;
   color: white !important;
   font-weight: bold;
   border-radius: 6px;
 }
 
 .neon-button {
-  background-color: #2A2D3A;
+  background-color: #2a2d3a;
   color: #fff;
-  border: 1px solid #1A1930;
+  border: 1px solid #1a1930;
   border-radius: 6px;
   padding: 12px 24px;
   font-weight: bold;
   text-decoration: none;
-  box-shadow: 0 3px 0 #B94E34;
+  box-shadow: 0 3px 0 #b94e34;
   transition: 0.3s ease;
 }
+
 .tip-bubble {
   position: absolute;
   padding: 18px 22px;
-  background: #E3FE18;
-  color: #001F54;
+  background: #e3fe18;
+  color: #001f54;
   font-weight: 300;
   border-radius: 50%;
   width: 200px;
@@ -513,9 +518,10 @@ body {
   height: 0;
   border-left: 22px solid transparent;
   border-right: 22px solid transparent;
-  border-top: 22px solid #E3FE18;
+  border-top: 22px solid #e3fe18;
   filter: drop-shadow(0 0 15px rgba(227, 254, 24, 0.35));
 }
+
 @keyframes popIn {
   to {
     opacity: 1;
@@ -527,8 +533,6 @@ body {
   transform: scale(0.7);
   transition: all 0.4s ease;
 }
-
-
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -556,6 +560,10 @@ body {
 }
 
 
+.google-map-link {
+  text-decoration: none; 
+}
+
 .mf-neon-btn-danger {
   display: inline-block;
   padding: 8px 14px;
@@ -582,3 +590,5 @@ body {
   transform: scale(0.95);
   box-shadow: 0 0 5px #ff4d6d, inset 0 0 5px #ff4d6d;
 }
+
+

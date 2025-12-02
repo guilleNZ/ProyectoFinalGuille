@@ -109,7 +109,7 @@ export const Footer = () => {
 
 
         <div className="footer-bottom">
-          <p>Copyright ©2025 MeetFit. All rights reserved.</p>
+          <p>Copyright ©2025 MeetFit. Todos los derechos reservados.</p>
         </div>
       </footer >
     </>

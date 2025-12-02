@@ -75,7 +75,7 @@ export const EventDetails = () => {
       setRating(data.average_rating ?? data.rating ?? value);
     } catch (err) {
       console.error(err);
-      alert("Error");
+      alert("Gracias ;)");
     }
   };
 
@@ -148,19 +148,19 @@ export const EventDetails = () => {
           <p><IconCalendar className="icon-info" /> <strong>Fecha y hora:</strong> {event.date ? new Date(event.date).toLocaleString() : "No especificado"}</p>
 
           {event.latitude != null && event.longitude != null && (
-  <p>
-    <IconLocation className="icon-info" />
-    <strong>Ubicación:</strong>{" "}
-    <a
-      href={`https://www.google.com/maps?q=${event.latitude},${event.longitude}`}
-      target="_blank"
-      rel="noreferrer"
-      className="map-link"
-    >
-      VER en el MAPA 📍 
-    </a>
-  </p>
-)}
+            <p>
+              <IconLocation className="icon-info" />
+              <strong>Ubicación:</strong>{" "}
+              <a
+                href={`https://www.google.com/maps?q=${event.latitude},${event.longitude}`}
+                target="_blank"
+                rel="noreferrer"
+                className="map-link"
+              >
+                VER en el MAPA 📍
+              </a>
+            </p>
+          )}
 
 
           <p><IconGroup className="icon-info" /> <strong>Participantes:</strong> {(event.participants?.length ?? 0)}/{event.max_participants ?? 0}</p>
