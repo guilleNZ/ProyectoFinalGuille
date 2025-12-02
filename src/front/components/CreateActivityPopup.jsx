@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Form, Spinner } from "react-bootstrap";
 import { sports } from "../jsApiComponents/sports";
-import { toast } from "react-toastify";  // 👈 IMPORTANTE
+import { toast } from "react-toastify"; 
 
 export const CreateActivityPopup = ({ show, onActivityCreated, coordinates }) => {
   const [formData, setFormData] = useState({
@@ -66,7 +66,7 @@ export const CreateActivityPopup = ({ show, onActivityCreated, coordinates }) =>
         console.error("SERVER ERROR 422 ==> ", err);
         toast.error(err.error || "🚫 Error creando actividad");
         setLoading(false);
-        return; // 👈 EVITA QUE EL CÓDIGO SIGA EJECUTÁNDOSE
+        return; 
       }
 
       const data = await resp.json();
