@@ -22,7 +22,12 @@ app.url_map.strict_slashes = False
 
 # Setup the Flask-JWT-Extended extension
 app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY")
+import stripe
+
 jwt = JWTManager(app)
+
+# Stripe configuration
+stripe.api_key = os.getenv("STRIPE_API_KEY")
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
