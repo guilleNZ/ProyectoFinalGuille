@@ -5,7 +5,7 @@ export const Navbar = () => {
 	const navigate = useNavigate();
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const [userEmail, setUserEmail] = useState("");
-	const [favoritesCount, setFavoritesCount] = useState(0);
+	const [favoritesCount, setFavoritesCount] = useState(0);   //REVISAR
 	const [cartCount, setCartCount] = useState(0);
 	const [showMobileMenu, setShowMobileMenu] = useState(false);
 
@@ -23,7 +23,8 @@ export const Navbar = () => {
 
 		window.addEventListener('storage', handleStorageChange);
 
-		// Actualizar cada 10 segundos (para cambios en otras pestañas)
+		// REVISAR //
+
 		const interval = setInterval(() => {
 			checkAuthStatus();
 			updateCartCount();
