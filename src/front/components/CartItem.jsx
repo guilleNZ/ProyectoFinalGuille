@@ -1,7 +1,6 @@
 import React from "react";
 
 const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
-    // En esta versión, item ES el producto directamente
     const product = item;
     const quantity = item.quantity || 1;
 
@@ -9,6 +8,8 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
         const newQuantity = quantity + change;
         if (newQuantity >= 1) {
             onUpdateQuantity(newQuantity);
+            // 👇 Disparar evento al cambiar cantidad
+            window.dispatchEvent(new Event('cartUpdated'));
         }
     };
 
@@ -16,6 +17,8 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
         const value = parseInt(e.target.value) || 1;
         if (value >= 1) {
             onUpdateQuantity(value);
+            // 👇 Disparar evento al cambiar cantidad
+            window.dispatchEvent(new Event('cartUpdated'));
         }
     };
 
@@ -23,7 +26,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
         <tr>
             <td>
                 <img
-                    src={product.image_url || "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80"}
+                    src={product.image_url || "https://via.placeholder.com/80x80"}
                     alt={product.name}
                     className="img-fluid rounded"
                     style={{ width: '80px', height: '80px', objectFit: 'cover' }}
@@ -69,7 +72,11 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
             <td className="text-center align-middle">
                 <button
                     className="btn btn-outline-danger btn-sm"
-                    onClick={onRemove}
+                    onClick={() => {
+                        onRemove();
+                        // 👇 Disparar evento al eliminar
+                        window.dispatchEvent(new Event('cartUpdated'));
+                    }}
                     title="Eliminar del carrito"
                 >
                     <i className="fas fa-trash"></i>

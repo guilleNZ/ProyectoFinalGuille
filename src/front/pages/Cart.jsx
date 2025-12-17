@@ -35,6 +35,9 @@ export const Cart = () => {
         let localCart = JSON.parse(localStorage.getItem('localCart')) || [];
         localCart = localCart.filter(item => item.id !== productId);
         localStorage.setItem('localCart', JSON.stringify(localCart));
+
+        // 👇 Disparar evento para actualizar Navbar
+        window.dispatchEvent(new Event('cartUpdated'));
     };
 
     const handleUpdateQuantity = (productId, newQuantity) => {
@@ -64,11 +67,17 @@ export const Cart = () => {
             return item;
         });
         localStorage.setItem('localCart', JSON.stringify(localCart));
+
+        // 👇 Disparar evento para actualizar Navbar
+        window.dispatchEvent(new Event('cartUpdated'));
     };
 
     const handleClearCart = () => {
         setCart({ items: [], total: 0 });
         localStorage.removeItem('localCart');
+
+        // 👇 Disparar evento para actualizar Navbar
+        window.dispatchEvent(new Event('cartUpdated'));
     };
 
     const handleCheckout = () => {

@@ -5,37 +5,43 @@ export const Navbar = () => {
 	const navigate = useNavigate();
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const [userEmail, setUserEmail] = useState("");
-	const [favoritesCount, setFavoritesCount] = useState(0);   //REVISAR
+	const [favoritesCount, setFavoritesCount] = useState(0);
 	const [cartCount, setCartCount] = useState(0);
 	const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-	useEffect(() => {
-		checkAuthStatus();
-		updateCartCount();
-		updateFavoritesCount();
+	// Función para mostrar notificaciones sin Bootstrap JS
+	const showNotification = (message, type) => {
+		const notification = document.createElement('div');
+		notification.className = `alert alert-${type} position-fixed`;
+		notification.style.cssText = `
+            top: 60px;
+            right: 20px;
+            z-index: 1055;
+            min-width: 250px;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: opacity 0.3s;
+            padding: 12px 20px;
+        `;
+		notification.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span>${message}</span>
+                <button type="button" class="btn-close ms-3" style="font-size:14px;"></button>
+            </div>
+        `;
 
-		// Escuchar cambios en localStorage
-		const handleStorageChange = () => {
-			checkAuthStatus();
-			updateCartCount();
-			updateFavoritesCount();
-		};
+		document.body.appendChild(notification);
 
-		window.addEventListener('storage', handleStorageChange);
+		const closeBtn = notification.querySelector('.btn-close');
+		closeBtn.onclick = () => closeNotification(notification);
 
-		// REVISAR //
+		setTimeout(() => closeNotification(notification), 3000);
+	};
 
-		const interval = setInterval(() => {
-			checkAuthStatus();
-			updateCartCount();
-			updateFavoritesCount();
-		}, 10000);
-
-		return () => {
-			window.removeEventListener('storage', handleStorageChange);
-			clearInterval(interval);
-		};
-	}, []);
+	const closeNotification = (el) => {
+		el.style.opacity = '0';
+		setTimeout(() => el.remove(), 300);
+	};
 
 	const checkAuthStatus = () => {
 		const token = localStorage.getItem("token");
@@ -57,60 +63,38 @@ export const Navbar = () => {
 		}
 	};
 
-	const updateCartCount = async () => {
+	const updateCartCount = () => {
 		const token = localStorage.getItem("token");
-
 		if (token) {
-			try {
-				// Intentar obtener carrito del backend
-				const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/cart`, {
-					headers: {
-						"Authorization": `Bearer ${token}`
-					}
-				});
-
-				if (response.ok) {
-					const cart = await response.json();
-					setCartCount(cart.items?.length || 0);
-					return;
-				}
-			} catch (error) {
-				// Fallback a localStorage
-				console.log("Using localStorage for cart");
-			}
+			fetch(`${import.meta.env.VITE_BACKEND_URL}/cart`, {
+				headers: { "Authorization": `Bearer ${token}` }
+			})
+				.then(res => res.ok ? res.json() : null)
+				.then(data => {
+					if (data) setCartCount(data.items?.length || 0);
+				})
+				.catch(e => console.error("Error fetching cart:", e));
+		} else {
+			const localCart = JSON.parse(localStorage.getItem('localCart')) || [];
+			setCartCount(localCart.length);
 		}
-
-		// Usar localStorage como fallback
-		const localCart = JSON.parse(localStorage.getItem('localCart')) || [];
-		setCartCount(localCart.length);
 	};
 
-	const updateFavoritesCount = async () => {
+	const updateFavoritesCount = () => {
 		const token = localStorage.getItem("token");
-
 		if (token) {
-			try {
-				// Intentar obtener favoritos del backend
-				const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/favorites`, {
-					headers: {
-						"Authorization": `Bearer ${token}`
-					}
-				});
-
-				if (response.ok) {
-					const favorites = await response.json();
-					setFavoritesCount(favorites.length || 0);
-					return;
-				}
-			} catch (error) {
-				// Fallback a localStorage
-				console.log("Using localStorage for favorites");
-			}
+			fetch(`${import.meta.env.VITE_BACKEND_URL}/favorites`, {
+				headers: { "Authorization": `Bearer ${token}` }
+			})
+				.then(res => res.ok ? res.json() : [])
+				.then(data => {
+					if (Array.isArray(data)) setFavoritesCount(data.length);
+				})
+				.catch(e => console.error("Error fetching favorites:", e));
+		} else {
+			const favs = JSON.parse(localStorage.getItem('favorites')) || [];
+			setFavoritesCount(favs.length);
 		}
-
-		// Usar localStorage como fallback
-		const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-		setFavoritesCount(favorites.length);
 	};
 
 	const handleLogout = () => {
@@ -121,43 +105,31 @@ export const Navbar = () => {
 		setCartCount(0);
 		setFavoritesCount(0);
 		navigate("/");
-
-		// Mostrar notificación
 		showNotification("✅ Sesión cerrada exitosamente", "success");
 	};
 
-	const showNotification = (message, type) => {
-		const notification = document.createElement('div');
-		notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-		notification.style.cssText = `
-            top: 70px;
-            right: 20px;
-            z-index: 1050;
-            min-width: 250px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        `;
+	// 👇 Escuchar cambios en localStorage y actualizar contadores
+	useEffect(() => {
+		const syncCounts = () => {
+			checkAuthStatus();
+			updateCartCount();
+			updateFavoritesCount();
+		};
 
-		notification.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
+		syncCounts();
 
-		document.body.appendChild(notification);
+		const handleStorage = () => syncCounts();
+		window.addEventListener('storage', handleStorage);
 
-		// Auto-remove after 3 seconds
-		setTimeout(() => {
-			if (notification.parentNode) {
-				notification.remove();
-			}
-		}, 3000);
-	};
+		return () => {
+			window.removeEventListener('storage', handleStorage);
+		};
+	}, []);
 
 	return (
 		<>
-			{/* Navbar Principal */}
 			<nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
 				<div className="container">
-					{/* Logo y marca */}
 					<Link to="/" className="navbar-brand d-flex align-items-center">
 						<div className="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center me-2"
 							style={{ width: '40px', height: '40px' }}>
@@ -168,7 +140,6 @@ export const Navbar = () => {
 						</span>
 					</Link>
 
-					{/* Botón menú móvil */}
 					<button
 						className="navbar-toggler border-0"
 						type="button"
@@ -177,26 +148,21 @@ export const Navbar = () => {
 						<span className="navbar-toggler-icon"></span>
 					</button>
 
-					{/* Contenido del navbar */}
-					<div className={`collapse navbar-collapse ${showMobileMenu ? 'show' : ''}`} id="navbarNav">
-						{/* Navegación principal */}
+					<div className={`collapse navbar-collapse ${showMobileMenu ? 'show' : ''}`}>
 						<ul className="navbar-nav me-auto">
 							<li className="nav-item">
 								<Link to="/catalog" className="nav-link" onClick={() => setShowMobileMenu(false)}>
-									<i className="fas fa-th-large me-1"></i>
-									Catálogo
+									<i className="fas fa-th-large me-1"></i> Catálogo
 								</Link>
 							</li>
 							<li className="nav-item">
 								<Link to="/contact" className="nav-link" onClick={() => setShowMobileMenu(false)}>
-									<i className="fas fa-envelope me-1"></i>
-									Contacto
+									<i className="fas fa-envelope me-1"></i> Contacto
 								</Link>
 							</li>
 							<li className="nav-item dropdown">
 								<a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-									<i className="fas fa-crown me-1"></i>
-									Marcas
+									<i className="fas fa-crown me-1"></i> Marcas
 								</a>
 								<ul className="dropdown-menu">
 									<li><Link to="/catalog?brand=Rolex" className="dropdown-item" onClick={() => setShowMobileMenu(false)}>Rolex</Link></li>
@@ -209,29 +175,13 @@ export const Navbar = () => {
 							</li>
 							<li className="nav-item">
 								<Link to="/about" className="nav-link" onClick={() => setShowMobileMenu(false)}>
-									<i className="fas fa-info-circle me-1"></i>
-									Sobre Nosotros
+									<i className="fas fa-info-circle me-1"></i> Sobre Nosotros
 								</Link>
 							</li>
 						</ul>
 
-						{/* Iconos de acción */}
 						<div className="d-flex align-items-center">
-							{/* Buscador */}
-							<div className="input-group d-none d-lg-flex me-3" style={{ width: '300px' }}>
-								<input
-									type="text"
-									className="form-control form-control-sm"
-									placeholder="Buscar relojes..."
-								/>
-								<button className="btn btn-dark btn-sm">
-									<i className="fas fa-search"></i>
-								</button>
-							</div>
-
-							{/* Iconos */}
 							<div className="d-flex gap-3">
-								{/* Favoritos */}
 								<Link to="/favorites" className="nav-link position-relative" title="Favoritos">
 									<i className="fas fa-heart fa-lg"></i>
 									{favoritesCount > 0 && (
@@ -241,7 +191,6 @@ export const Navbar = () => {
 									)}
 								</Link>
 
-								{/* Carrito */}
 								<Link to="/cart" className="nav-link position-relative" title="Carrito">
 									<i className="fas fa-shopping-cart fa-lg"></i>
 									{cartCount > 0 && (
@@ -251,7 +200,6 @@ export const Navbar = () => {
 									)}
 								</Link>
 
-								{/* Usuario */}
 								{isLoggedIn ? (
 									<div className="nav-item dropdown">
 										<a className="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
@@ -262,46 +210,17 @@ export const Navbar = () => {
 											<span className="d-none d-lg-inline">{userEmail.split('@')[0]}</span>
 										</a>
 										<ul className="dropdown-menu dropdown-menu-end">
-											<li>
-												<Link to="/profile" className="dropdown-item" onClick={() => setShowMobileMenu(false)}>
-													<i className="fas fa-user me-2"></i>
-													Mi Perfil
-												</Link>
-											</li>
-											<li>
-												<Link to="/orders" className="dropdown-item" onClick={() => setShowMobileMenu(false)}>
-													<i className="fas fa-shopping-bag me-2"></i>
-													Mis Pedidos
-												</Link>
-											</li>
-											<li>
-												<Link to="/favorites" className="dropdown-item" onClick={() => setShowMobileMenu(false)}>
-													<i className="fas fa-heart me-2"></i>
-													Mis Favoritos
-													{favoritesCount > 0 && (
-														<span className="badge bg-danger float-end">{favoritesCount}</span>
-													)}
-												</Link>
-											</li>
+											<li><Link to="/profile" className="dropdown-item" onClick={() => setShowMobileMenu(false)}><i className="fas fa-user me-2"></i>Mi Perfil</Link></li>
+											<li><Link to="/orders" className="dropdown-item" onClick={() => setShowMobileMenu(false)}><i className="fas fa-shopping-bag me-2"></i>Mis Pedidos</Link></li>
+											<li><Link to="/favorites" className="dropdown-item" onClick={() => setShowMobileMenu(false)}><i className="fas fa-heart me-2"></i>Mis Favoritos {favoritesCount > 0 && <span className="badge bg-danger float-end">{favoritesCount}</span>}</Link></li>
 											<li><hr className="dropdown-divider" /></li>
-											<li>
-												<button className="dropdown-item text-danger" onClick={handleLogout}>
-													<i className="fas fa-sign-out-alt me-2"></i>
-													Cerrar Sesión
-												</button>
-											</li>
+											<li><button className="dropdown-item text-danger" onClick={handleLogout}><i className="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</button></li>
 										</ul>
 									</div>
 								) : (
 									<div className="d-flex gap-2">
-										<Link to="/login" className="btn btn-outline-dark btn-sm">
-											<i className="fas fa-sign-in-alt me-1"></i>
-											Ingresar
-										</Link>
-										<Link to="/register" className="btn btn-dark btn-sm">
-											<i className="fas fa-user-plus me-1"></i>
-											Registrarse
-										</Link>
+										<Link to="/login" className="btn btn-outline-dark btn-sm"><i className="fas fa-sign-in-alt me-1"></i>Ingresar</Link>
+										<Link to="/register" className="btn btn-dark btn-sm"><i className="fas fa-user-plus me-1"></i>Registrarse</Link>
 									</div>
 								)}
 							</div>
@@ -310,58 +229,16 @@ export const Navbar = () => {
 				</div>
 			</nav>
 
-			{/* Buscador móvil */}
 			{showMobileMenu && (
 				<div className="container-fluid bg-light py-2 border-top d-lg-none">
 					<div className="container">
 						<div className="input-group">
-							<input
-								type="text"
-								className="form-control"
-								placeholder="Buscar relojes..."
-							/>
-							<button className="btn btn-dark">
-								<i className="fas fa-search"></i>
-							</button>
+							<input type="text" className="form-control" placeholder="Buscar relojes..." />
+							<button className="btn btn-dark"><i className="fas fa-search"></i></button>
 						</div>
 					</div>
 				</div>
 			)}
-
-			{/* Breadcrumb navigation (opcional) */}
-			<div className="container-fluid bg-light border-bottom py-2 d-none d-md-block">
-				<div className="container">
-					<nav aria-label="breadcrumb">
-						<ol className="breadcrumb mb-0">
-							<li className="breadcrumb-item">
-								<Link to="/" className="text-decoration-none text-muted">
-									<i className="fas fa-home me-1"></i>
-									Inicio
-								</Link>
-							</li>
-							<li className="breadcrumb-item">
-								<Link to="/catalog" className="text-decoration-none text-muted">
-									Catálogo
-								</Link>
-							</li>
-							<li className="breadcrumb-item active text-dark">
-								{window.location.pathname === '/cart' && 'Carrito'}
-								{window.location.pathname === '/favorites' && 'Favoritos'}
-								{window.location.pathname === '/profile' && 'Mi Perfil'}
-								{window.location.pathname.startsWith('/product/') && 'Detalles del Producto'}
-							</li>
-						</ol>
-					</nav>
-				</div>
-			</div>
-
-			{/* Notificación flotante container */}
-			<div id="notification-container" style={{
-				position: 'fixed',
-				top: '80px',
-				right: '20px',
-				zIndex: 1055
-			}}></div>
 		</>
 	);
 };

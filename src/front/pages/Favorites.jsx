@@ -42,6 +42,9 @@ export const Favorites = () => {
             return favProductId !== productId;
         });
         localStorage.setItem('favorites', JSON.stringify(localFavorites));
+
+        // 👇 Disparar evento para actualizar Navbar
+        window.dispatchEvent(new Event('favoritesUpdated'));
     };
 
     const handleClearAll = () => {
@@ -50,6 +53,9 @@ export const Favorites = () => {
         // Limpiar todo
         setFavorites([]);
         localStorage.removeItem('favorites');
+
+        // 👇 Disparar evento para actualizar Navbar
+        window.dispatchEvent(new Event('favoritesUpdated'));
     };
 
     const handleAddToCart = (product) => {
@@ -63,6 +69,8 @@ export const Favorites = () => {
 
         alert(`Producto ${product.name} agregado al carrito`);
         // Aquí iría la lógica para agregar al carrito
+        // 👇 Disparar evento para actualizar carrito
+        window.dispatchEvent(new Event('cartUpdated'));
     };
 
     if (loading) {

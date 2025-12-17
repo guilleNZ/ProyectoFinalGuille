@@ -13,7 +13,12 @@ const ProductCard = ({ product }) => {
 
     const checkIfFavorite = async () => {
         const token = localStorage.getItem("token");
-        if (!token) return;
+        if (!token) {
+            // Si no hay token, no verificar favoritos
+            setIsFavorite(false);
+            setFavoriteId(null);
+            return;
+        }
 
         try {
             const response = await fetch(
@@ -25,17 +30,31 @@ const ProductCard = ({ product }) => {
                 }
             );
 
+            if (response.status === 401) {
+                // Token inválido o expirado
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                setIsFavorite(false);
+                setFavoriteId(null);
+                return;
+            }
+
             if (response.ok) {
                 const data = await response.json();
                 setIsFavorite(data.is_favorite);
                 setFavoriteId(data.favorite_id);
+            } else {
+                setIsFavorite(false);
+                setFavoriteId(null);
             }
         } catch (error) {
             console.error("Error checking favorite:", error);
+            setIsFavorite(false);
+            setFavoriteId(null);
         }
     };
 
-    const handleToggleFavorite = async (e) => {
+    const handleToggleFavorite = async (e) => {       ////REVISAR!!!!!////REVISAR!!!!!////REVISAR!!!!!
         e.preventDefault();
         e.stopPropagation();
 
@@ -61,11 +80,22 @@ const ProductCard = ({ product }) => {
                     }
                 );
 
+                if (response.status === 401) {
+                    // Token inválido o expirado
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    alert("Sesión expirada. Por favor, vuelve a iniciar sesión.");
+                    window.location.href = "/login"; // Redirigir al login
+                    return;
+                }
+
                 if (response.ok) {
                     setIsFavorite(false);
                     setFavoriteId(null);
+                    // 👇 Disparar evento para actualizar Navbar
+                    window.dispatchEvent(new Event('favoritesUpdated'));
                 }
-            } else {
+            } else {         ////REVISAR!!!!!////REVISAR!!!!!////REVISAR!!!!!
                 // Agregar a favoritos
                 const response = await fetch(
                     `${import.meta.env.VITE_BACKEND_URL}/favorites`,
@@ -74,17 +104,28 @@ const ProductCard = ({ product }) => {
                         headers: {
                             "Content-Type": "application/json",
                             "Authorization": `Bearer ${token}`
-                        },
+                        },         ////REVISAR!!!!!////REVISAR!!!!!
                         body: JSON.stringify({
                             product_id: product.id
                         })
                     }
                 );
 
+                if (response.status === 401) {
+                    // Token inválido o expirado
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    alert("Sesión expirada. Por favor, vuelve a iniciar sesión.");
+                    window.location.href = "/login"; // Redirigir al login
+                    return;
+                }
+
                 if (response.ok) {
                     const data = await response.json();
                     setIsFavorite(true);
                     setFavoriteId(data.favorite?.id);
+                    // 👇 Disparar evento para actualizar Navbar
+                    window.dispatchEvent(new Event('favoritesUpdated'));
                 }
             }
         } catch (error) {
@@ -95,9 +136,9 @@ const ProductCard = ({ product }) => {
         }
     };
 
-    const handleAddToCart = async (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+    const handleAddToCart = async (e) => {      ////REVISAR!!!!!////REVISAR!!!!!
+        e.preventDefault();  
+        e.stopPropagation();   ////REVISAR!!!!!////REVISAR!!!!!
 
         const token = localStorage.getItem("token");
 
@@ -107,7 +148,7 @@ const ProductCard = ({ product }) => {
         }
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/cart/items`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/cart/items`, {           
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -119,8 +160,19 @@ const ProductCard = ({ product }) => {
                 })
             });
 
+            if (response.status === 401) {
+                // Token inválido o expirado
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                alert("Sesión expirada. Por favor, vuelve a iniciar sesión.");
+                window.location.href = "/login"; // Redirigir al login
+                return;
+            }
+
             if (response.ok) {
                 alert("✅ Producto agregado al carrito");
+                // 👇 Disparar evento para actualizar Navbar
+                window.dispatchEvent(new Event('cartUpdated'));
             } else {
                 const data = await response.json();
                 alert(data.msg || "Error al agregar al carrito");
@@ -143,7 +195,7 @@ const ProductCard = ({ product }) => {
                         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                     />
                 </Link>
-
+////REVISAR!!!!!////REVISAR!!!!!////REVISAR!!!!!////REVISAR!!!!!////REVISAR!!!!!
                 {/* Badges */}
                 <div className="position-absolute top-0 start-0 m-2">
                     <span className="badge bg-dark">{product.brand}</span>
