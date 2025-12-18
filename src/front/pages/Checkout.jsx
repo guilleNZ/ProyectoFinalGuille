@@ -1,79 +1,77 @@
+// src/front/pages/Checkout.jsx
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { authenticatedFetch, config } from "../config";
+// --- CORRECCIÓN: Importa useGlobalReducer desde el archivo correcto ---
+import useGlobalReducer from "../hooks/useGlobalReducer";
+// --- FIN CORRECCIÓN ---
+// --- AÑADIDO: Importar el componente PaymentSimulator ---
+import PaymentSimulator from "../components/PaymentSimulator";
+// --- FIN AÑADIDO ---
+import { config } from "../config"; // Asumiendo que tienes un archivo de configuración
 
 export const Checkout = () => {
+    // --- CORRECCIÓN: Usa el hook correcto ---
+    const { store, dispatch } = useGlobalReducer(); // Accede al store global y a la función dispatch
+    // --- FIN CORRECCIÓN ---
     const navigate = useNavigate();
-    const [cart, setCart] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState("card");
+    const [error, setError] = useState(null);
     const [formData, setFormData] = useState({
+        shippingAddress: "",
+        email: "",
+        phone: "",
         cardNumber: "",
         cardName: "",
         expiryDate: "",
-        cvv: "",
-        shippingAddress: "",
-        email: "",
-        phone: ""
+        cvv: ""
     });
-    const [user, setUser] = useState(null);
+    const [paymentMethod, setPaymentMethod] = useState("card"); // 'card' o 'paypal'
+    // --- AÑADIDO: Estado para mostrar el simulador ---
+    const [showPaymentSimulator, setShowPaymentSimulator] = useState(false);
+    // --- FIN AÑADIDO ---
+    // --- AÑADIDO: Estado para el carrito (obtenerlo del store o localStorage) ---
+    const [cart, setCart] = useState(null);
 
     useEffect(() => {
-        fetchCart();
-        const userData = localStorage.getItem(config.storageKeys.user);
-        if (userData) {
-            const userObj = JSON.parse(userData);
-            setUser(userObj);
-            setFormData(prev => ({
-                ...prev,
-                email: userObj.email || "",
-                phone: userObj.phone || "",
-                shippingAddress: userObj.address || ""
-            }));
-        }
-    }, []);
-
-    const fetchCart = async () => {
-        const token = localStorage.getItem(config.storageKeys.token);
-
-        if (!token) {
-            // Intentar cargar carrito offline
-            const offlineCart = JSON.parse(localStorage.getItem(config.storageKeys.cart)) || [];
-            if (offlineCart.length > 0) {
-                setCart({
-                    items: offlineCart,
-                    total: offlineCart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-                });
-                return;
+        // Cargar carrito del store global o localStorage al montar
+        const loadCart = () => {
+            // Opción 1: Intentar usar el carrito del store global (si estás usando Flux con carrito ahí)
+            // Asumiendo que tu store.js (usando useGlobalReducer) mantiene el carrito en store.cart
+            // y que tu componente Cart o Navbar lo actualiza allí.
+            // Si store.cart es una estructura como { items: [...], total: ... }
+            if (store && store.cart && store.cart.items && store.cart.items.length > 0) {
+                setCart(store.cart); // Asigna directamente el carrito del store global
+                console.log("Carrito cargado del store global:", store.cart);
+                return; // Sale si lo encontró en el store
             }
+
+            // Opción 2: Cargar carrito de localStorage (más común para carritos no persistentes en DB o modo offline)
+            const storedCart = JSON.parse(localStorage.getItem(config.storageKeys.cart)) || [];
+            if (storedCart.length > 0) {
+                const total = storedCart.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0);
+                const cartData = {
+                    items: storedCart,
+                    total: total
+                };
+                setCart(cartData);
+                console.log("Carrito cargado de localStorage:", cartData);
+                return; // Sale si lo encontró en localStorage
+            }
+
+            // Si no hay carrito en ningún lado, redirigir al carrito vacío
+            console.warn("Carrito vacío o no encontrado en store ni localStorage, redirigiendo a /cart");
             navigate("/cart");
-            return;
-        }
+        };
 
-        try {
-            const response = await authenticatedFetch('/cart');
+        loadCart();
+    }, [store.cart, navigate]); // Agrega store.cart como dependencia si se usa para cargar el carrito
 
-            if (!response.ok) {
-                navigate("/cart");
-                return;
-            }
-
-            const data = await response.json();
-            setCart(data);
-        } catch (error) {
-            console.error("Error fetching cart:", error);
-            // Fallback a localStorage
-            const offlineCart = JSON.parse(localStorage.getItem(config.storageKeys.cart)) || [];
-            setCart({
-                items: offlineCart,
-                total: offlineCart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-            });
-        }
-    };
-
+    // Manejar cambios en los inputs del formulario
     const handleInputChange = (e) => {
         const { name, value } = e.target;
 
+        // Formatear número de tarjeta (opcional)
         if (name === "cardNumber") {
             const formattedValue = value.replace(/\D/g, "").slice(0, 16);
             const groups = formattedValue.match(/.{1,4}/g);
@@ -84,6 +82,7 @@ export const Checkout = () => {
             return;
         }
 
+        // Formatear fecha de expiración (opcional)
         if (name === "expiryDate") {
             const formattedValue = value.replace(/\D/g, "").slice(0, 4);
             if (formattedValue.length >= 2) {
@@ -106,22 +105,22 @@ export const Checkout = () => {
         });
     };
 
+    // Manejar el envío del formulario de checkout
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
-        const token = localStorage.getItem(config.storageKeys.token);
+        setError(null); // Limpiar errores previos
 
         // Validaciones
         if (!formData.shippingAddress.trim()) {
-            alert("Por favor, ingresa una dirección de envío");
+            setError("Por favor, ingresa una dirección de envío.");
             setLoading(false);
             return;
         }
 
         if (paymentMethod === "card") {
             if (!formData.cardNumber || !formData.cardName || !formData.expiryDate || !formData.cvv) {
-                alert("Por favor, completa todos los datos de la tarjeta");
+                setError("Por favor, completa todos los datos de la tarjeta.");
                 setLoading(false);
                 return;
             }
@@ -131,84 +130,152 @@ export const Checkout = () => {
             // Simular procesamiento de pago (2 segundos)
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            if (!token) {
-                // Modo offline: simular orden
-                const offlineCart = JSON.parse(localStorage.getItem(config.storageKeys.cart)) || [];
-                const order = {
-                    id: Date.now(),
-                    items: offlineCart,
-                    total: cart.total,
-                    status: "paid",
-                    shipping_address: formData.shippingAddress,
-                    created_at: new Date().toISOString()
-                };
-
-                // Guardar orden en localStorage
-                const orders = JSON.parse(localStorage.getItem('offline_orders')) || [];
-                orders.push(order);
-                localStorage.setItem('offline_orders', JSON.stringify(orders));
-
-                // Limpiar carrito
-                localStorage.removeItem(config.storageKeys.cart);
-
-                alert("¡Orden creada exitosamente en modo offline!");
-                navigate("/orders");
-                return;
-            }
-
-            // Crear orden en el backend
-            const response = await authenticatedFetch('/orders', {
-                method: "POST",
-                body: JSON.stringify({
-                    shipping_address: formData.shippingAddress
-                })
-            });
-
-            if (response.ok) {
-                const orderData = await response.json();
-                alert(`¡Pago procesado exitosamente! Orden #${orderData.order.id} creada.`);
-                navigate("/orders");
-            } else {
-                const errorData = await response.json();
-                throw new Error(errorData.msg || "Error al crear la orden");
-            }
-        } catch (error) {
-            alert(`Error al procesar el pago: ${error.message}`);
-            console.error(error);
-        } finally {
+            // --- MOSTRAR EL COMPONENTE DE SIMULACIÓN DE PAGO ---
+            setShowPaymentSimulator(true);
+            // Deja de mostrar el estado de carga del formulario principal aquí
             setLoading(false);
+            // El resto de la lógica (éxito/cancelación) se manejará dentro del componente PaymentSimulator
+
+        } catch (err) {
+            setError(err.message || "Ocurrió un error inesperado durante la simulación del checkout.");
+            console.error("Error en handleSubmit:", err);
+        } finally {
+            // setLoading(false); // Ya no es necesario aquí porque setLoading(false) se hizo antes de mostrar el simulador
         }
     };
 
+    // --- AÑADIDO: Función para manejar el éxito del simulador ---
+    const handlePaymentSuccess = (simulatedOrderData) => {
+        console.log("Pago simulado exitoso. Datos de la orden:", simulatedOrderData);
+
+        // --- ACCIONES POST-PAGO EXITOSO (SIMULADO) ---
+        // 1. Vaciar el carrito en el estado global (usa dispatch para llamar a la acción del reducer)
+        // Asumiendo que en tu storeReducer (en src/store.js) tienes una acción como 'CLEAR_CART'
+        const clearCartAction = { type: 'CLEAR_CART' }; // Define el tipo de acción
+        dispatch(clearCartAction); // Usa dispatch para cambiar el estado global
+
+        // 2. Vaciar el carrito en localStorage (por si acaso o para modo offline)
+        localStorage.removeItem(config.storageKeys.cart);
+
+        // 3. Opcional: Guardar la orden simulada en localStorage (si quieres tener un historial local de órdenes simuladas)
+        if (simulatedOrderData) {
+            const existingSimulatedOrders = JSON.parse(localStorage.getItem(config.storageKeys.simulatedOrders)) || []; // Asume una clave para órdenes simuladas
+            existingSimulatedOrders.push(simulatedOrderData);
+            localStorage.setItem(config.storageKeys.simulatedOrders, JSON.stringify(existingSimulatedOrders));
+        }
+
+        // 4. Disparar un evento para notificar a otros componentes (como la Navbar) que el carrito cambió
+        window.dispatchEvent(new Event('cartUpdated'));
+
+        // 5. Opcional: Mostrar mensaje de éxito al usuario
+        alert("✅ ¡Compra realizada exitosamente! Tu orden ha sido creada.");
+
+        // 6. Ocultar el simulador (si estás controlando su visibilidad desde Checkout.jsx)
+        // setShowPaymentSimulator(false); // Descomenta si tienes este estado en Checkout.jsx
+
+        // 7. Redirigir a la página de órdenes
+        navigate("/orders");
+    };
+    // --- FIN AÑADIDO ---
+
+    // --- AÑADIDO: Función para manejar la cancelación del simulador ---
+    const handlePaymentCancel = () => {
+        console.log("Pago simulado cancelado por el usuario.");
+        // Ocultar el componente de simulación
+        setShowPaymentSimulator(false);
+        // Opcional: Permitir volver a intentar el checkout desde el formulario principal
+        // setLoading(false); // No es necesario aquí si setLoading se maneja internamente en PaymentSimulator si lo usa
+        // setError(null); // Limpiar error si existía
+    };
+    // --- FIN AÑADIDO ---
+
+    // --- RENDERIZADO ---
+    // Mostrar mensaje de carga si no hay carrito aún
     if (!cart) {
         return (
             <div className="container py-5 text-center">
-                <p>Cargando información de pago...</p>
+                <p>Cargando información del carrito...</p>
+            </div>
+        );
+    }
+
+    // Mostrar mensaje si el carrito está vacío
+    if (cart.items.length === 0) {
+        return (
+            <div className="container py-5">
+                <div className="alert alert-info text-center">
+                    <h4>Tu carrito está vacío</h4>
+                    <p>Antes de proceder al pago, agrega artículos a tu carrito.</p>
+                    <a href="/products" className="btn btn-primary">Ir a Productos</a>
+                </div>
             </div>
         );
     }
 
     return (
         <div className="container py-5">
-            <h1 className="mb-4" style={{ color: '#1a1a1a' }}>Finalizar Compra</h1>
+            <h1 className="mb-4">Finalizar Compra</h1>
 
-            <div className="row">
-                <div className="col-lg-8 mb-4">
-                    <div className="card shadow-sm">
-                        <div className="card-body">
-                            <h2 className="mb-4">Información de Pago</h2>
+            {/* Mensaje de error global */}
+            {error && (
+                <div className="alert alert-danger">
+                    <strong>Error:</strong> {error}
+                </div>
+            )}
 
-                            {/* Información del usuario */}
-                            {user && (
-                                <div className="alert alert-info mb-4">
-                                    <i className="fas fa-user me-2"></i>
-                                    <strong>Comprador:</strong> {user.first_name} {user.last_name} ({user.email})
+            {/* --- CONDICIONAL: Mostrar Checkout o PaymentSimulator --- */}
+            {!showPaymentSimulator ? (
+                // --- FORMULARIO DE CHECKOUT NORMAL ---
+                <div className="row">
+                    <div className="col-md-8">
+                        <form onSubmit={handleSubmit}>
+                            {/* Información de envío */}
+                            <div className="mb-4">
+                                <h3>Datos de Envío</h3>
+                                <div className="mb-3">
+                                    <label htmlFor="shippingAddress" className="form-label">Dirección de Envío *</label>
+                                    <textarea
+                                        className="form-control"
+                                        id="shippingAddress"
+                                        name="shippingAddress"
+                                        value={formData.shippingAddress}
+                                        onChange={handleInputChange}
+                                        rows="3"
+                                        placeholder="Calle, número, ciudad, código postal, país"
+                                        required
+                                    ></textarea>
                                 </div>
-                            )}
+                                <div className="row">
+                                    <div className="col-md-6 mb-3">
+                                        <label htmlFor="email" className="form-label">Email *</label>
+                                        <input
+                                            type="email"
+                                            className="form-control"
+                                            id="email"
+                                            name="email"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="col-md-6 mb-3">
+                                        <label htmlFor="phone" className="form-label">Teléfono *</label>
+                                        <input
+                                            type="tel"
+                                            className="form-control"
+                                            id="phone"
+                                            name="phone"
+                                            value={formData.phone}
+                                            onChange={handleInputChange}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
 
                             {/* Método de pago */}
                             <div className="mb-4">
-                                <h5 className="mb-3">Método de Pago</h5>
+                                <h3>Método de Pago</h3>
                                 <div className="row g-3">
                                     <div className="col-md-6">
                                         <div
@@ -237,58 +304,12 @@ export const Checkout = () => {
                                 </div>
                             </div>
 
-                            {/* Formulario */}
-                            <form onSubmit={handleSubmit}>
-                                {/* Dirección de envío */}
+                            {/* Formulario de tarjeta (si se selecciona) */}
+                            {paymentMethod === "card" && (
                                 <div className="mb-4">
-                                    <label htmlFor="shippingAddress" className="form-label fw-bold">
-                                        <i className="fas fa-home me-2"></i>
-                                        Dirección de Envío *
-                                    </label>
-                                    <textarea
-                                        className="form-control"
-                                        id="shippingAddress"
-                                        name="shippingAddress"
-                                        value={formData.shippingAddress}
-                                        onChange={handleInputChange}
-                                        rows="3"
-                                        placeholder="Calle, número, ciudad, código postal, país"
-                                        required
-                                    ></textarea>
-                                </div>
-
-                                {/* Información de contacto */}
-                                <div className="row mb-4">
-                                    <div className="col-md-6">
-                                        <label htmlFor="email" className="form-label">Email *</label>
-                                        <input
-                                            type="email"
-                                            className="form-control"
-                                            id="email"
-                                            name="email"
-                                            value={formData.email}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label htmlFor="phone" className="form-label">Teléfono *</label>
-                                        <input
-                                            type="tel"
-                                            className="form-control"
-                                            id="phone"
-                                            name="phone"
-                                            value={formData.phone}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Formulario de tarjeta (si se selecciona) */}
-                                {paymentMethod === "card" && (
-                                    <>
-                                        <div className="mb-3">
+                                    <h4>Detalles de la Tarjeta</h4>
+                                    <div className="row">
+                                        <div className="col-12 mb-3">
                                             <label htmlFor="cardNumber" className="form-label">Número de Tarjeta *</label>
                                             <input
                                                 type="text"
@@ -302,8 +323,7 @@ export const Checkout = () => {
                                                 required
                                             />
                                         </div>
-
-                                        <div className="mb-3">
+                                        <div className="col-12 mb-3">
                                             <label htmlFor="cardName" className="form-label">Nombre en la Tarjeta *</label>
                                             <input
                                                 type="text"
@@ -316,141 +336,152 @@ export const Checkout = () => {
                                                 required
                                             />
                                         </div>
-
-                                        <div className="row">
-                                            <div className="col-md-6 mb-3">
-                                                <label htmlFor="expiryDate" className="form-label">Fecha de Expiración *</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    id="expiryDate"
-                                                    name="expiryDate"
-                                                    value={formData.expiryDate}
-                                                    onChange={handleInputChange}
-                                                    placeholder="MM/YY"
-                                                    maxLength="5"
-                                                    required
-                                                />
-                                            </div>
-                                            <div className="col-md-6 mb-3">
-                                                <label htmlFor="cvv" className="form-label">CVV *</label>
-                                                <input
-                                                    type="password"
-                                                    className="form-control"
-                                                    id="cvv"
-                                                    name="cvv"
-                                                    value={formData.cvv}
-                                                    onChange={handleInputChange}
-                                                    placeholder="123"
-                                                    maxLength="3"
-                                                    required
-                                                />
-                                            </div>
+                                        <div className="col-md-6 mb-3">
+                                            <label htmlFor="expiryDate" className="form-label">Fecha de Expiración *</label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                id="expiryDate"
+                                                name="expiryDate"
+                                                value={formData.expiryDate}
+                                                onChange={handleInputChange}
+                                                placeholder="MM/AA"
+                                                maxLength="5"
+                                                required
+                                            />
                                         </div>
-                                    </>
-                                )}
-
-                                <button
-                                    type="submit"
-                                    className="btn btn-dark btn-lg w-100 py-3"
-                                    disabled={loading || cart.items.length === 0}
-                                >
-                                    {loading ? (
-                                        <>
-                                            <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                                            Procesando Pago...
-                                        </>
-                                    ) : (
-                                        `Confirmar Pago - $${((cart.total || 0) * 1.21).toLocaleString()}`
-                                    )}
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Resumen del pedido */}
-                <div className="col-lg-4">
-                    <div className="card shadow-sm sticky-top" style={{ top: '20px' }}>
-                        <div className="card-body">
-                            <h5 className="mb-4">Resumen del Pedido</h5>
-
-                            <div className="mb-3">
-                                <h6>Productos ({cart.items?.length || 0})</h6>
-                                {cart.items?.map((item, index) => (
-                                    <div key={index} className="d-flex justify-content-between mb-2 border-bottom pb-2">
-                                        <div>
-                                            <span className="small">
-                                                {item.product?.name || item.name} x {item.quantity}
-                                            </span>
-                                            <br />
-                                            <small className="text-muted">
-                                                {item.product?.brand || item.brand}
-                                            </small>
+                                        <div className="col-md-6 mb-3">
+                                            <label htmlFor="cvv" className="form-label">CVV *</label>
+                                            <input
+                                                type="password"
+                                                className="form-control"
+                                                id="cvv"
+                                                name="cvv"
+                                                value={formData.cvv}
+                                                onChange={handleInputChange}
+                                                placeholder="123"
+                                                maxLength="3"
+                                                required
+                                            />
                                         </div>
-                                        <span className="small">
-                                            ${((item.product?.price || item.price) * item.quantity).toLocaleString()}
-                                        </span>
                                     </div>
-                                ))}
-                            </div>
-
-                            <hr />
-
-                            <div className="mb-2">
-                                <div className="d-flex justify-content-between">
-                                    <span>Subtotal</span>
-                                    <span>${cart.total?.toLocaleString() || '0'}</span>
                                 </div>
-                                <div className="d-flex justify-content-between">
-                                    <span>Envío</span>
-                                    <span className="text-success">Gratis</span>
+                            )}
+
+                            {/* Botón de confirmar pago */}
+                            <button
+                                type="submit"
+                                className="btn btn-dark btn-lg w-100 py-3"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        Procesando Pago...
+                                    </>
+                                ) : (
+                                    `Confirmar Pago - $${(cart.total * 1.21).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                )}
+                            </button>
+                        </form>
+                    </div>
+
+                    {/* Resumen del pedido */}
+                    <div className="col-md-4">
+                        <div className="card shadow-sm sticky-top" style={{ top: '20px' }}>
+                            <div className="card-body">
+                                <h5 className="mb-4">Resumen del Pedido</h5>
+
+                                <div className="mb-3">
+                                    <h6>Productos ({cart.items.length})</h6>
+                                    {cart.items.map((item, index) => (
+                                        <div key={index} className="d-flex justify-content-between mb-2 border-bottom pb-2">
+                                            <div>
+                                                <span className="small">
+                                                    {item.name || item.product?.name} x {item.quantity}
+                                                </span>
+                                                <br />
+                                                <small className="text-muted">
+                                                    {item.brand || item.product?.brand}
+                                                </small>
+                                            </div>
+                                            <span className="small">
+                                                ${((item.price || item.product?.price) * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            </span>
+                                        </div>
+                                    ))}
                                 </div>
-                                <div className="d-flex justify-content-between">
-                                    <span>IVA (21%)</span>
-                                    <span>${(cart.total * 0.21).toLocaleString()}</span>
+
+                                <hr />
+
+                                <div className="mb-2">
+                                    <div className="d-flex justify-content-between">
+                                        <span>Subtotal</span>
+                                        <span>${cart.total?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</span>
+                                    </div>
+                                    <div className="d-flex justify-content-between">
+                                        <span>Envío</span>
+                                        <span className="text-success">Gratis</span>
+                                    </div>
+                                    <div className="d-flex justify-content-between">
+                                        <span>IVA (21%)</span>
+                                        <span>${((cart.total || 0) * 0.21).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <hr />
+                                <hr />
 
-                            <div className="d-flex justify-content-between mb-4">
-                                <span className="fw-bold">Total</span>
-                                <span className="fw-bold fs-5">
-                                    ${((cart.total || 0) * 1.21).toLocaleString()}
-                                </span>
-                            </div>
+                                <div className="d-flex justify-content-between mb-4">
+                                    <span className="fw-bold">Total</span>
+                                    <span className="fw-bold fs-5">
+                                        ${(cart.total * 1.21).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </span>
+                                </div>
 
-                            {/* Información de seguridad */}
-                            <div className="border-top pt-3">
-                                <p className="small text-muted mb-2">
-                                    <i className="fas fa-lock me-2"></i>
-                                    Transacción segura SSL 256-bit
-                                </p>
-                                <p className="small text-muted mb-2">
-                                    <i className="fas fa-shield-alt me-2"></i>
-                                    Tus datos están protegidos
-                                </p>
-                                <p className="small text-muted mb-0">
-                                    <i className="fas fa-check-circle me-2"></i>
-                                    Política de devolución de 30 días
-                                </p>
+                                {/* Información de seguridad */}
+                                <div className="border-top pt-3">
+                                    <p className="small text-muted mb-2">
+                                        <i className="fas fa-lock me-2"></i>
+                                        Transacción segura SSL 256-bit
+                                    </p>
+                                    <p className="small text-muted mb-2">
+                                        <i className="fas fa-shield-alt me-2"></i>
+                                        Tus datos están protegidos
+                                    </p>
+                                    <p className="small text-muted mb-0">
+                                        <i className="fas fa-check-circle me-2"></i>
+                                        Política de devolución de 30 días
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Botón volver */}
-                    <div className="mt-3">
-                        <button
-                            className="btn btn-outline-dark w-100"
-                            onClick={() => navigate("/cart")}
-                        >
-                            <i className="fas fa-arrow-left me-2"></i>
-                            Volver al Carrito
-                        </button>
+                        {/* Botón volver */}
+                        <div className="mt-3">
+                            <button
+                                className="btn btn-outline-dark w-100"
+                                onClick={() => navigate("/cart")}
+                            >
+                                <i className="fas fa-arrow-left me-2"></i>
+                                Volver al Carrito
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            ) : (
+                // --- COMPONENTE DE SIMULACIÓN DE PAGO ---
+                <div className="row justify-content-center">
+                    <div className="col-md-8">
+                        <PaymentSimulator
+                            cartTotal={cart.total} // Pasa el total del carrito al simulador
+                            onSuccess={handlePaymentSuccess} // Pasa la función para manejar éxito
+                            onCancel={handlePaymentCancel}   // Pasa la función para manejar cancelación
+                        />
+                    </div>
+                </div>
+            )}
+            {/* --- FIN CONDICIONAL --- */}
+
         </div>
     );
 };

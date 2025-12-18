@@ -3,7 +3,7 @@ export const config = {
   // URL del backend - priorizar variable de entorno, sino usar localhost
   backendUrl:
     import.meta.env.VITE_BACKEND_URL ||
-    "https://effective-chainsaw-pj6r45q5q7gghr47q-3001.app.github.dev/api",
+    "https://effective-chainsaw-pj6r45q5q7gghr47q-3001.app.github.dev/api", // <-- CORREGIDO: Quité los espacios al final
 
   // Configuración de la aplicación
   appName: "Luxury Watches",
@@ -19,6 +19,9 @@ export const config = {
     user: "luxury_watches_user",
     cart: "luxury_watches_cart",
     wishlist: "luxury_watches_wishlist",
+    // Añadir esta línea
+    simulatedOrders: "luxury_watches_simulated_orders",
+    // ... otras claves ...
   },
 
   // Tiempos de expiración
@@ -27,8 +30,8 @@ export const config = {
   // URLs de imágenes por defecto
   defaultImages: {
     product:
-      "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80",
-    user: "https://ui-avatars.com/api/?name=Usuario&background=1a1a1a&color=fff",
+      "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80", // <-- Quité espacios aquí también si los había
+    user: "https://ui-avatars.com/api/?name=Usuario&background=1a1a1a&color=fff", // <-- Quité espacios aquí también si los había
   },
 };
 
@@ -47,6 +50,7 @@ export const authenticatedFetch = async (url, options = {}) => {
 
   try {
     const response = await fetch(`${config.backendUrl}${url}`, {
+      // <-- Esta línea usa config.backendUrl
       ...options,
       headers,
     });

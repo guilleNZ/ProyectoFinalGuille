@@ -1,3 +1,5 @@
+# src/api/routes.py
+
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Product, Category, Cart, CartItem, Order, OrderItem, Favorite
 from api.utils import generate_sitemap, APIException
@@ -114,7 +116,7 @@ def create_product():
         data = request.get_json()
 
         # Validaciones básicas (ejemplo)
-        # CORRECCIÓN: Añadido 'model' a los campos requeridos
+        # CORRECCIÓN: Añadido 'model' a los campos requeridos, ya que es obligatorio en el modelo Product
         required_fields = ['name', 'description',
                            'price', 'stock', 'brand', 'category_id', 'model']
         for field in required_fields:
@@ -263,8 +265,9 @@ def add_to_cart():
             )
             db.session.add(new_item)
 
-        # Actualizar stock
-        product.stock -= data['quantity']
+        # CORRECCIÓN: Actualizar stock del producto
+        # Asegúrate de que la resta sea correcta y no deje stock negativo
+        product.stock = max(0, product.stock - data['quantity'])
 
         db.session.commit()
 
@@ -545,4 +548,3 @@ def check_favorite(product_id):
 @api.route('/health', methods=['GET'])
 def health_check():
     return jsonify({"status": "ok", "message": "API funcionando"}), 200
-# ============ MANEJO DE ERRORES JWT ============

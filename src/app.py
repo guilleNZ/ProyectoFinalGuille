@@ -7,11 +7,18 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
-from api.models import db
+from api.models import db, User, Product, Category, Cart, CartItem, Order, OrderItem, Favorite
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from datetime import timedelta
+
+# --- IMPORTANTE: Importa la función de seeding ---
+# Asume que guardaste el script como src/api/seed_data.py
+from api.seed_data import populate_database
+# Si lo guardaste como src/seed_data.py (fuera del directorio api), usa:
+# from seed_data import populate_database
+# --- FIN IMPORTANTE ---
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
@@ -29,12 +36,9 @@ CORS(app,
 # =======================================================
 
 # ============ CONFIGURACIÓN DE JWT ============
-# Clave secreta para JWT
 app.config["JWT_SECRET_KEY"] = os.environ.get(
     "JWT_SECRET_KEY", "super-secret-key-change-this")
-# Extender tiempo de expiración del token (24 horas en lugar de 15 minutos)
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
-# Configurar token de refresh (opcional)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 # ==============================================
 
@@ -48,7 +52,7 @@ else:
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db, compare_type=True)
-db.init_app(app)
+db.init_app(app)  # <-- db.init_app(app) se llama aquí
 
 # Configurar JWT
 jwt = JWTManager(app)
@@ -109,10 +113,10 @@ def needs_fresh_token_callback(jwt_header, jwt_payload):
         "error": "Token no fresco",
         "code": "fresh_token_required"
     }), 401
+# ============ FIN MANEJADORES DE ERRORES DE JWT ============
+
 
 # ============ MIDDLEWARE PARA LOGGING ============
-
-
 @app.before_request
 def log_request_info():
     """Loggear información de cada request para debug"""
@@ -206,4 +210,12 @@ if __name__ == '__main__':
     print(f"🌐 Environment: {ENV}")
     print(f"🔑 JWT Secret Key configured: {bool(app.config['JWT_SECRET_KEY'])}")
     print("=" * 60 + "\n")
+
+    # --- EJECUTA LA POBLACIÓN DE DATOS AL INICIAR ---
+    print("Checking and populating database if needed...")
+    with app.app_context():
+        populate_database()  # Llama a la función de seeding
+    print("Database check and population completed.")
+    # --- FIN DE LA POBLACIÓN ---
+
     app.run(host='0.0.0.0', port=PORT, debug=True)
