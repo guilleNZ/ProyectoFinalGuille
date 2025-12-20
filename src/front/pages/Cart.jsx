@@ -131,7 +131,7 @@ export const Cart = () => {
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h1 className="mb-0" style={{ color: '#1a1a1a' }}>Tu Carrito</h1>
                 <button
-                    className="btn btn-outline-danger"
+                    className="btn btn-danger"
                     onClick={handleClearCart}
                 >
                     <i className="fas fa-trash me-2"></i>
@@ -175,19 +175,13 @@ export const Cart = () => {
                             <i className="fas fa-arrow-left me-2"></i>
                             Continuar Comprando
                         </Link>
-                        <button
-                            className="btn btn-danger"
-                            onClick={handleClearCart}
-                        >
-                            <i className="fas fa-trash me-2"></i>
-                            Vaciar Todo
-                        </button>
+                        {/* REMOVIDO: Botón de vaciar todo de la parte inferior */}
                     </div>
                 </div>
 
                 {/* Resumen del pedido */}
                 <div className="col-lg-4">
-                    <div className="card shadow-sm sticky-top" style={{ top: '20px' }}>
+                    <div className="card shadow-sm">
                         <div className="card-body">
                             <h5 className="card-title mb-4">Resumen del Pedido</h5>
 

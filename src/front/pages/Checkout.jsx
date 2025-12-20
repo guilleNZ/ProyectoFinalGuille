@@ -8,7 +8,6 @@ import useGlobalReducer from "../hooks/useGlobalReducer";
 // --- AÑADIDO: Importar el componente PaymentSimulator ---
 import PaymentSimulator from "../components/PaymentSimulator";
 // --- FIN AÑADIDO ---
-import { config } from "../config"; // Asumiendo que tienes un archivo de configuración
 
 export const Checkout = () => {
     // --- CORRECCIÓN: Usa el hook correcto ---
@@ -47,7 +46,7 @@ export const Checkout = () => {
             }
 
             // Opción 2: Cargar carrito de localStorage (más común para carritos no persistentes en DB o modo offline)
-            const storedCart = JSON.parse(localStorage.getItem(config.storageKeys.cart)) || [];
+            const storedCart = JSON.parse(localStorage.getItem('localCart')) || []; // CAMBIADO: Usar 'localCart'
             if (storedCart.length > 0) {
                 const total = storedCart.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0);
                 const cartData = {
@@ -118,6 +117,14 @@ export const Checkout = () => {
             return;
         }
 
+        // Validación de stock antes de proceder al pago
+        const invalidItems = cart.items.filter(item => item.quantity > item.stock);
+        if (invalidItems.length > 0) {
+            setError("Algunos productos en tu carrito exceden el stock disponible. Por favor, vuelve al carrito y ajusta las cantidades.");
+            setLoading(false);
+            return;
+        }
+
         if (paymentMethod === "card") {
             if (!formData.cardNumber || !formData.cardName || !formData.expiryDate || !formData.cvv) {
                 setError("Por favor, completa todos los datos de la tarjeta.");
@@ -139,9 +146,8 @@ export const Checkout = () => {
         } catch (err) {
             setError(err.message || "Ocurrió un error inesperado durante la simulación del checkout.");
             console.error("Error en handleSubmit:", err);
-        } finally {
-            // setLoading(false); // Ya no es necesario aquí porque setLoading(false) se hizo antes de mostrar el simulador
         }
+        // setLoading(false); // Ya no es necesario aquí porque setLoading(false) se hizo antes de mostrar el simulador
     };
 
     // --- AÑADIDO: Función para manejar el éxito del simulador ---
@@ -155,13 +161,13 @@ export const Checkout = () => {
         dispatch(clearCartAction); // Usa dispatch para cambiar el estado global
 
         // 2. Vaciar el carrito en localStorage (por si acaso o para modo offline)
-        localStorage.removeItem(config.storageKeys.cart);
+        localStorage.removeItem('localCart'); // CAMBIADO: Usar 'localCart'
 
         // 3. Opcional: Guardar la orden simulada en localStorage (si quieres tener un historial local de órdenes simuladas)
         if (simulatedOrderData) {
-            const existingSimulatedOrders = JSON.parse(localStorage.getItem(config.storageKeys.simulatedOrders)) || []; // Asume una clave para órdenes simuladas
+            const existingSimulatedOrders = JSON.parse(localStorage.getItem('simulatedOrders')) || []; // Asume una clave para órdenes simuladas
             existingSimulatedOrders.push(simulatedOrderData);
-            localStorage.setItem(config.storageKeys.simulatedOrders, JSON.stringify(existingSimulatedOrders));
+            localStorage.setItem('simulatedOrders', JSON.stringify(existingSimulatedOrders));
         }
 
         // 4. Disparar un evento para notificar a otros componentes (como la Navbar) que el carrito cambió
@@ -406,7 +412,7 @@ export const Checkout = () => {
                                                 </small>
                                             </div>
                                             <span className="small">
-                                                ${((item.price || item.product?.price) * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                ${((item.price || item.product?.price) * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                                             </span>
                                         </div>
                                     ))}

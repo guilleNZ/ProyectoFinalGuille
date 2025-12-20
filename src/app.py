@@ -1,5 +1,9 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
+""" """ """
+from api.seed_data import populate_database # Importamos la función
+from api.seed_data import populate_database  # Importamos la función
+from api.models import db, User, Product
+from flask import Flask, request, jsonify, send_from_directory
+This module takes care of starting the API Server, Loading the DB and Adding the endpoints """
 """
 from flask_jwt_extended import JWTManager
 import os
@@ -12,13 +16,8 @@ from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from datetime import timedelta
-
-# --- IMPORTANTE: Importa la función de seeding ---
-# Asume que guardaste el script como src/api/seed_data.py
 from api.seed_data import populate_database
-# Si lo guardaste como src/seed_data.py (fuera del directorio api), usa:
-# from seed_data import populate_database
-# --- FIN IMPORTANTE ---
+
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
@@ -73,7 +72,7 @@ print("=" * 60)
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error_string):
-    """Manejar token inválido (devuelve 401 en lugar de 422)"""
+    ""Manejar token inválido(devuelve 401 en lugar de 422)""
     print(f"❌ JWT ERROR: Token inválido - {error_string}")
     return jsonify({
         "msg": "Token de acceso inválido",
@@ -84,7 +83,7 @@ def invalid_token_callback(error_string):
 
 @jwt.expired_token_loader
 def expired_token_callback(jwt_header, jwt_payload):
-    """Manejar token expirado (devuelve 401 en lugar de 422)"""
+    
     print(f"❌ JWT ERROR: Token expirado - {jwt_payload}")
     return jsonify({
         "msg": "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
@@ -95,7 +94,7 @@ def expired_token_callback(jwt_header, jwt_payload):
 
 @jwt.unauthorized_loader
 def unauthorized_callback(error_string):
-    """Manejar solicitud sin token"""
+    ""Manejar solicitud sin token""
     print(f"❌ JWT ERROR: No autorizado - {error_string}")
     return jsonify({
         "msg": "Acceso no autorizado. Se requiere autenticación.",
@@ -106,7 +105,7 @@ def unauthorized_callback(error_string):
 
 @jwt.needs_fresh_token_loader
 def needs_fresh_token_callback(jwt_header, jwt_payload):
-    """Manejar token que necesita refresco"""
+    ""Manejar token que necesita refresco""
     print(f"⚠️ JWT WARNING: Token no fresco - {jwt_payload}")
     return jsonify({
         "msg": "Se requiere un token fresco para esta acción",
@@ -119,7 +118,7 @@ def needs_fresh_token_callback(jwt_header, jwt_payload):
 # ============ MIDDLEWARE PARA LOGGING ============
 @app.before_request
 def log_request_info():
-    """Loggear información de cada request para debug"""
+    ""Loggear información de cada request para debug""
     if request.path.startswith('/api/'):
         print("\n" + "=" * 60)
         print(f"📦 REQUEST: {request.method} {request.path}")
@@ -143,7 +142,7 @@ def log_request_info():
 
 @app.after_request
 def log_response_info(response):
-    """Loggear información de cada response para debug"""
+    ""Loggear información de cada response para debug""
     if request.path.startswith('/api/'):
         print("\n" + "=" * 60)
         print(
@@ -203,7 +202,7 @@ def serve_any_other_file(path):
 
 
 # Ejecutar aplicación
-if __name__ == '__main__':
+# if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
     print("\n" + "=" * 60)
     print(f"🚀 Starting Flask server on port {PORT}")
@@ -217,5 +216,89 @@ if __name__ == '__main__':
         populate_database()  # Llama a la función de seeding
     print("Database check and population completed.")
     # --- FIN DE LA POBLACIÓN ---
+
+    app.run(host='0.0.0.0', port=PORT, debug=True)
+
+
+# En app.py
+if __name__ == '__main__':
+    PORT = int(os.environ.get('PORT', 3001))
+
+    with app.app_context():
+        # Verificamos si ya hay datos para no duplicar
+        # (Opcional, si quitaste el drop_all)
+        if Product.query.first() is None:
+            print("Base de datos vacía. Poblando...")
+            populate_database()
+        else:
+            print("La base de datos ya tiene productos.")
+
+    app.run(host='0.0.0.0', port=PORT, debug=True)
+ """
+
+
+import os
+from flask import Flask, request, jsonify, send_from_directory
+from flask_migrate import Migrate
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from datetime import timedelta
+
+from api.utils import APIException, generate_sitemap
+from api.models import db, User, Product
+from api.routes import api
+from api.admin import setup_admin
+from api.commands import setup_commands
+from api.seed_data import populate_database # Importamos la función
+
+app = Flask(__name__)
+app.url_map.strict_slashes = False
+
+# Configuración CORS
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+
+# Configuración JWT
+app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", "super-secret-key")
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
+jwt = JWTManager(app)
+
+# Configuración DB
+db_url = os.getenv("DATABASE_URL")
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://") if db_url else "sqlite:////tmp/test.db"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+MIGRATE = Migrate(app, db, compare_type=True)
+db.init_app(app)
+
+setup_admin(app)
+setup_commands(app)
+app.register_blueprint(api, url_prefix='/api')
+
+@app.errorhandler(APIException)
+def handle_invalid_usage(error):
+    return jsonify(error.to_dict()), error.status_code
+
+@app.route('/')
+def sitemap():
+    return generate_sitemap(app)
+
+@app.route('/<path:path>', methods=['GET'])
+def serve_any_other_file(path):
+    if not os.path.isfile(os.path.join(os.path.join(os.path.dirname(__file__), '../dist/'), path)):
+        path = 'index.html'
+    return send_from_directory(os.path.join(os.path.dirname(__file__), '../dist/'), path)
+
+if __name__ == '__main__':
+    PORT = int(os.environ.get('PORT', 3001))
+    
+    # --- POBLAR DB AL INICIAR ---
+    with app.app_context():
+        # Verificamos si ya hay productos para no borrar todo en cada reinicio
+        if Product.query.first() is None:
+            print("Base de datos vacía detectada...")
+            populate_database()
+        else:
+            print("La base de datos ya contiene datos. Saltando seeder.")
+    # ----------------------------
 
     app.run(host='0.0.0.0', port=PORT, debug=True)

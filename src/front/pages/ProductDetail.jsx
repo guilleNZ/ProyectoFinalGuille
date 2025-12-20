@@ -31,43 +31,24 @@ export const ProductDetail = () => {
             ];
             setRelatedProducts(allProducts);
 
-            // Verificar si es favorito
+            // Verificar si es favorito desde localStorage
             checkIfFavorite(productId);
 
-            // Simular contador de favoritos
-            setFavoriteCount(Math.floor(Math.random() * 50) + 10);
+            // Obtener contador de favoritos desde localStorage o simular uno
+            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            const count = favorites.filter(favId => favId === productId).length;
+            setFavoriteCount(count);
         }
 
         setLoading(false);
     }, [id]);
 
-    const checkIfFavorite = async (productId) => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        try {
-            const response = await fetch(
-                `${import.meta.env.VITE_BACKEND_URL}/favorites/check/${productId}`,
-                {
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
-                }
-            );
-
-            if (response.ok) {
-                const data = await response.json();
-                setIsFavorite(data.is_favorite);
-            }
-        } catch (error) {
-            console.error("Error checking favorite:", error);
-            // Fallback a localStorage para modo offline
-            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            setIsFavorite(favorites.includes(productId));
-        }
+    const checkIfFavorite = (productId) => {
+        const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        setIsFavorite(favorites.includes(productId));
     };
 
-    const handleToggleFavorite = async () => {
+    const handleToggleFavorite = () => {
         const token = localStorage.getItem("token");
 
         if (!token) {
@@ -78,79 +59,40 @@ export const ProductDetail = () => {
 
         setFavoriteLoading(true);
 
-        try {
-            if (isFavorite) {
-                // Eliminar de favoritos
-                const response = await fetch(
-                    `${import.meta.env.VITE_BACKEND_URL}/favorites/${product.id}`,
-                    {
-                        method: "DELETE",
-                        headers: {
-                            "Authorization": `Bearer ${token}`
-                        }
-                    }
-                );
+        // Obtener favoritos actuales
+        const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-                if (response.ok) {
-                    setIsFavorite(false);
-                    setFavoriteCount(prev => Math.max(0, prev - 1));
-                    // Actualizar localStorage para modo offline
-                    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-                    const updatedFavorites = favorites.filter(favId => favId !== product.id);
-                    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+        let newIsFavorite;
+        let newFavoriteCount;
 
-                    // Mostrar notificación
-                    showNotification("❌ Producto eliminado de favoritos", "danger");
-                }
-            } else {
-                // Agregar a favoritos
-                const response = await fetch(
-                    `${import.meta.env.VITE_BACKEND_URL}/favorites`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            product_id: product.id
-                        })
-                    }
-                );
+        if (isFavorite) {
+            // Eliminar de favoritos
+            const updatedFavorites = favorites.filter(favId => favId !== product.id);
+            localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+            newIsFavorite = false;
+            newFavoriteCount = Math.max(0, favoriteCount - 1);
 
-                if (response.ok) {
-                    setIsFavorite(true);
-                    setFavoriteCount(prev => prev + 1);
-                    // Actualizar localStorage para modo offline
-                    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-                    favorites.push(product.id);
-                    localStorage.setItem('favorites', JSON.stringify(favorites));
+            // Mostrar notificación
+            showNotification("❌ Producto eliminado de favoritos", "danger");
+        } else {
+            // Agregar a favoritos
+            favorites.push(product.id);
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            newIsFavorite = true;
+            newFavoriteCount = favoriteCount + 1;
 
-                    // Mostrar notificación
-                    showNotification("❤️ Producto agregado a favoritos", "success");
-                }
-            }
-        } catch (error) {
-            console.error("Error toggling favorite:", error);
-
-            // Modo offline - usar localStorage
-            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            if (isFavorite) {
-                const updatedFavorites = favorites.filter(favId => favId !== product.id);
-                localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
-                setIsFavorite(false);
-                setFavoriteCount(prev => Math.max(0, prev - 1));
-                showNotification("❌ Producto eliminado de favoritos (offline)", "warning");
-            } else {
-                favorites.push(product.id);
-                localStorage.setItem('favorites', JSON.stringify(favorites));
-                setIsFavorite(true);
-                setFavoriteCount(prev => prev + 1);
-                showNotification("❤️ Producto agregado a favoritos (offline)", "warning");
-            }
-        } finally {
-            setFavoriteLoading(false);
+            // Mostrar notificación
+            showNotification("❤️ Producto agregado a favoritos", "success");
         }
+
+        // Actualizar estado
+        setIsFavorite(newIsFavorite);
+        setFavoriteCount(newFavoriteCount);
+
+        // Disparar evento para actualizar navbar u otros componentes
+        window.dispatchEvent(new Event('favoritesUpdated'));
+
+        setFavoriteLoading(false);
     };
 
     const showNotification = (message, type) => {
@@ -179,7 +121,7 @@ export const ProductDetail = () => {
         }, 3000);
     };
 
-    const handleAddToCart = async () => {
+    const handleAddToCart = () => {
         const token = localStorage.getItem("token");
 
         if (!token) {
@@ -193,54 +135,39 @@ export const ProductDetail = () => {
             return;
         }
 
-        try {
-            // Intentar con el backend primero
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/cart/items`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    product_id: product.id,
-                    quantity: quantity
-                })
-            });
-
-            if (response.ok) {
-                showNotification(`✅ ${quantity} x ${product.name} agregado al carrito`, "success");
-
-                // Redirigir al carrito después de un breve delay
-                setTimeout(() => {
-                    navigate("/cart");
-                }, 1500);
-            } else {
-                // Fallback a localStorage
-                addToLocalCart();
-            }
-        } catch (error) {
-            // Fallback a localStorage si hay error de conexión
-            addToLocalCart();
-        }
-    };
-
-    const addToLocalCart = () => {
+        // Obtener carrito actual
         let cart = JSON.parse(localStorage.getItem('localCart')) || [];
 
+        // Buscar si el producto ya existe en el carrito
         const existingItemIndex = cart.findIndex(item => item.id === product.id);
 
         if (existingItemIndex >= 0) {
-            cart[existingItemIndex].quantity += quantity;
+            // Verificar si la cantidad total excede el stock
+            const totalQuantity = cart[existingItemIndex].quantity + quantity;
+            if (totalQuantity > product.stock) {
+                alert(`No hay suficiente stock disponible. Stock actual: ${product.stock}. Ya tienes ${cart[existingItemIndex].quantity} en el carrito.`);
+                return;
+            }
+            // Actualizar cantidad existente
+            cart[existingItemIndex].quantity = totalQuantity;
         } else {
+            // Agregar nuevo producto al carrito
             cart.push({
                 ...product,
                 quantity: quantity
             });
         }
 
+        // Guardar carrito actualizado
         localStorage.setItem('localCart', JSON.stringify(cart));
-        showNotification(`✅ ${quantity} x ${product.name} agregado al carrito (modo offline)`, "warning");
 
+        // Mostrar notificación
+        showNotification(`✅ ${quantity} x ${product.name} agregado al carrito`, "success");
+
+        // Disparar evento para actualizar navbar u otros componentes
+        window.dispatchEvent(new Event('cartUpdated'));
+
+        // Redirigir al carrito después de un breve delay
         setTimeout(() => {
             navigate("/cart");
         }, 1500);
@@ -330,7 +257,8 @@ export const ProductDetail = () => {
             <div className="row">
                 {/* Columna izquierda: Imágenes */}
                 <div className="col-lg-6 mb-4">
-                    <div className="sticky-top" style={{ top: '20px' }}>
+                    {/* REMOVIDO: sticky-top y top: '20px' para evitar conflictos con el navbar */}
+                    <div>
                         {/* Imagen principal */}
                         <div className="position-relative mb-3">
                             <img

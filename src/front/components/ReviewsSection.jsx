@@ -8,6 +8,12 @@ export const ReviewsSection = ({ productId }) => {
         comment: "",
         name: ""
     });
+    const [editingReview, setEditingReview] = useState(null);
+    const [editForm, setEditForm] = useState({
+        rating: 5,
+        comment: "",
+        name: ""
+    });
     const [showForm, setShowForm] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -69,6 +75,57 @@ export const ReviewsSection = ({ productId }) => {
 
                 // Mostrar notificación
                 showNotification("¡Gracias por tu reseña!", "success");
+            }
+
+            setLoading(false);
+        }, 1000);
+    };
+
+    const handleDeleteReview = (reviewId) => {
+        if (!confirm("¿Estás seguro de que deseas eliminar esta reseña?")) {
+            return;
+        }
+
+        const success = reviewUtils.deleteReview(productId, reviewId);
+
+        if (success) {
+            setReviews(reviews.filter(review => review.id !== reviewId));
+            showNotification("Reseña eliminada correctamente", "success");
+        } else {
+            showNotification("Error al eliminar la reseña", "danger");
+        }
+    };
+
+    const handleEditReview = (review) => {
+        setEditingReview(review.id);
+        setEditForm({
+            rating: review.rating,
+            comment: review.comment,
+            name: review.user
+        });
+    };
+
+    const handleUpdateReview = (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        setTimeout(() => {
+            const updatedReview = reviewUtils.updateReview(productId, editingReview, {
+                rating: editForm.rating,
+                comment: editForm.comment,
+                name: editForm.name
+            });
+
+            if (updatedReview) {
+                setReviews(reviews.map(review =>
+                    review.id === editingReview ? updatedReview : review
+                ));
+                setEditingReview(null);
+                setEditForm({ rating: 5, comment: "", name: "" });
+
+                showNotification("Reseña actualizada correctamente", "success");
+            } else {
+                showNotification("Error al actualizar la reseña", "danger");
             }
 
             setLoading(false);
@@ -165,7 +222,7 @@ export const ReviewsSection = ({ productId }) => {
             </div>
 
             {/* Botón para agregar reseña */}
-            {!showForm && (
+            {!showForm && !editingReview && (
                 <button
                     className="btn btn-dark mb-4"
                     onClick={() => setShowForm(true)}
@@ -176,7 +233,7 @@ export const ReviewsSection = ({ productId }) => {
             )}
 
             {/* Formulario de reseña */}
-            {showForm && (
+            {showForm && !editingReview && (
                 <div className="card mb-5 shadow-sm">
                     <div className="card-body">
                         <div className="d-flex justify-content-between align-items-center mb-4">
@@ -267,6 +324,104 @@ export const ReviewsSection = ({ productId }) => {
                 </div>
             )}
 
+            {/* Formulario de edición */}
+            {editingReview && (
+                <div className="card mb-5 shadow-sm">
+                    <div className="card-body">
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                            <h5 className="card-title mb-0">Editar reseña</h5>
+                            <button
+                                type="button"
+                                className="btn-close"
+                                onClick={() => {
+                                    setEditingReview(null);
+                                    setEditForm({ rating: 5, comment: "", name: "" });
+                                }}
+                            ></button>
+                        </div>
+
+                        <form onSubmit={handleUpdateReview}>
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">Tu calificación</label>
+                                <div className="rating-stars">
+                                    {[1, 2, 3, 4, 5].map(star => (
+                                        <button
+                                            key={star}
+                                            type="button"
+                                            className={`btn btn-link p-0 me-2 ${star <= editForm.rating ? 'text-warning' : 'text-muted'}`}
+                                            onClick={() => setEditForm({ ...editForm, rating: star })}
+                                            style={{ fontSize: '2rem' }}
+                                        >
+                                            <i className="fas fa-star"></i>
+                                        </button>
+                                    ))}
+                                    <span className="ms-2 fw-bold">
+                                        {editForm.rating} estrella{editForm.rating !== 1 ? 's' : ''}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">Tu nombre</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    value={editForm.name}
+                                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                    placeholder="Cómo te gustaría que aparezca tu nombre"
+                                />
+                            </div>
+
+                            <div className="mb-4">
+                                <label className="form-label fw-bold">Tu reseña *</label>
+                                <textarea
+                                    className="form-control"
+                                    rows="4"
+                                    value={editForm.comment}
+                                    onChange={(e) => setEditForm({ ...editForm, comment: e.target.value })}
+                                    placeholder="Comparte tu experiencia con este producto..."
+                                    required
+                                ></textarea>
+                                <div className="form-text">
+                                    Mínimo 10 caracteres
+                                </div>
+                            </div>
+
+                            <div className="d-flex gap-2">
+                                <button
+                                    type="submit"
+                                    className="btn btn-dark"
+                                    disabled={loading || editForm.comment.length < 10}
+                                >
+                                    {loading ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm me-2"></span>
+                                            Actualizando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fas fa-sync me-2"></i>
+                                            Actualizar Reseña
+                                        </>
+                                    )}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-secondary"
+                                    onClick={() => {
+                                        setEditingReview(null);
+                                        setEditForm({ rating: 5, comment: "", name: "" });
+                                    }}
+                                    disabled={loading}
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
             {/* Lista de reseñas */}
             <div className="reviews-list">
                 <div className="d-flex justify-content-between align-items-center mb-4">
@@ -317,6 +472,23 @@ export const ReviewsSection = ({ productId }) => {
                                                 </span>
                                             )}
                                         </div>
+                                    </div>
+                                    {/* Botones de acción para el propietario de la reseña */}
+                                    <div className="btn-group" role="group">
+                                        <button
+                                            className="btn btn-sm btn-outline-dark"
+                                            onClick={() => handleEditReview(review)}
+                                            title="Editar reseña"
+                                        >
+                                            <i className="fas fa-edit"></i>
+                                        </button>
+                                        <button
+                                            className="btn btn-sm btn-outline-danger"
+                                            onClick={() => handleDeleteReview(review.id)}
+                                            title="Eliminar reseña"
+                                        >
+                                            <i className="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </div>
                                 <p className="mb-0">{review.comment}</p>

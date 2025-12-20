@@ -64,37 +64,14 @@ export const Navbar = () => {
 	};
 
 	const updateCartCount = () => {
-		const token = localStorage.getItem("token");
-		if (token) {
-			fetch(`${import.meta.env.VITE_BACKEND_URL}/cart`, {
-				headers: { "Authorization": `Bearer ${token}` }
-			})
-				.then(res => res.ok ? res.json() : null)
-				.then(data => {
-					if (data) setCartCount(data.items?.length || 0);
-				})
-				.catch(e => console.error("Error fetching cart:", e));
-		} else {
-			const localCart = JSON.parse(localStorage.getItem('localCart')) || [];
-			setCartCount(localCart.length);
-		}
+		const localCart = JSON.parse(localStorage.getItem('localCart')) || [];
+		const count = localCart.reduce((sum, item) => sum + (item.quantity || 1), 0); // Sumar cantidades
+		setCartCount(count);
 	};
 
 	const updateFavoritesCount = () => {
-		const token = localStorage.getItem("token");
-		if (token) {
-			fetch(`${import.meta.env.VITE_BACKEND_URL}/favorites`, {
-				headers: { "Authorization": `Bearer ${token}` }
-			})
-				.then(res => res.ok ? res.json() : [])
-				.then(data => {
-					if (Array.isArray(data)) setFavoritesCount(data.length);
-				})
-				.catch(e => console.error("Error fetching favorites:", e));
-		} else {
-			const favs = JSON.parse(localStorage.getItem('favorites')) || [];
-			setFavoritesCount(favs.length);
-		}
+		const favs = JSON.parse(localStorage.getItem('favorites')) || [];
+		setFavoritesCount(favs.length);
 	};
 
 	const handleLogout = () => {
@@ -108,7 +85,7 @@ export const Navbar = () => {
 		showNotification("✅ Sesión cerrada exitosamente", "success");
 	};
 
-	// 👇 Escuchar cambios en localStorage y actualizar contadores
+	// 👇 Escuchar eventos personalizados y cambios en localStorage
 	useEffect(() => {
 		const syncCounts = () => {
 			checkAuthStatus();
@@ -118,10 +95,20 @@ export const Navbar = () => {
 
 		syncCounts();
 
+		// Escuchar eventos personalizados
+		const handleCartUpdated = () => syncCounts();
+		const handleFavoritesUpdated = () => syncCounts();
+		// Escuchar cambios en localStorage
 		const handleStorage = () => syncCounts();
+
+		window.addEventListener('cartUpdated', handleCartUpdated);
+		window.addEventListener('favoritesUpdated', handleFavoritesUpdated);
 		window.addEventListener('storage', handleStorage);
 
+		// Limpiar listeners
 		return () => {
+			window.removeEventListener('cartUpdated', handleCartUpdated);
+			window.removeEventListener('favoritesUpdated', handleFavoritesUpdated);
 			window.removeEventListener('storage', handleStorage);
 		};
 	}, []);
@@ -156,26 +143,23 @@ export const Navbar = () => {
 								</Link>
 							</li>
 							<li className="nav-item">
+								<Link to="/investment" className="nav-link" onClick={() => setShowMobileMenu(false)}>
+									<i className="fas fa-chart-line me-1"></i> Inversión
+								</Link>
+							</li>
+							<li className="nav-item">
 								<Link to="/contact" className="nav-link" onClick={() => setShowMobileMenu(false)}>
 									<i className="fas fa-envelope me-1"></i> Contacto
 								</Link>
 							</li>
-							<li className="nav-item dropdown">
-								<a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-									<i className="fas fa-crown me-1"></i> Marcas
-								</a>
-								<ul className="dropdown-menu">
-									<li><Link to="/catalog?brand=Rolex" className="dropdown-item" onClick={() => setShowMobileMenu(false)}>Rolex</Link></li>
-									<li><Link to="/catalog?brand=Omega" className="dropdown-item" onClick={() => setShowMobileMenu(false)}>Omega</Link></li>
-									<li><Link to="/catalog?brand=Patek Philippe" className="dropdown-item" onClick={() => setShowMobileMenu(false)}>Patek Philippe</Link></li>
-									<li><Link to="/catalog?brand=Audemars Piguet" className="dropdown-item" onClick={() => setShowMobileMenu(false)}>Audemars Piguet</Link></li>
-									<li><hr className="dropdown-divider" /></li>
-									<li><Link to="/catalog" className="dropdown-item" onClick={() => setShowMobileMenu(false)}>Ver todas</Link></li>
-								</ul>
-							</li>
 							<li className="nav-item">
 								<Link to="/about" className="nav-link" onClick={() => setShowMobileMenu(false)}>
 									<i className="fas fa-info-circle me-1"></i> Sobre Nosotros
+								</Link>
+							</li>
+							<li className="nav-item">
+								<Link to="/join-team" className="nav-link" onClick={() => setShowMobileMenu(false)}>
+									<i className="fas fa-handshake me-1"></i> Únete a nuestro equipo
 								</Link>
 							</li>
 						</ul>
@@ -220,7 +204,7 @@ export const Navbar = () => {
 								) : (
 									<div className="d-flex gap-2">
 										<Link to="/login" className="btn btn-outline-dark btn-sm"><i className="fas fa-sign-in-alt me-1"></i>Ingresar</Link>
-										<Link to="/register" className="btn btn-dark btn-sm"><i className="fas fa-user-plus me-1"></i>Registrarse</Link>
+										<Link to="/register" className="btn btn-dark btn-sm"><i className="fas fa-user-plus me-2"></i>Registrarse</Link>
 									</div>
 								)}
 							</div>

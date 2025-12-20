@@ -328,23 +328,7 @@ export const Profile = () => {
                                 </div>
                             </div>
 
-                            <div className="mt-4">
-                                <button
-                                    className="btn btn-outline-dark me-2"
-                                    onClick={() => navigate("/orders")}
-                                >
-                                    <i className="fas fa-shopping-bag me-2"></i>
-                                    Ver Mis Pedidos
-                                </button>
-
-                                <button
-                                    className="btn btn-outline-dark me-2"
-                                    onClick={() => navigate("/favorites")}
-                                >
-                                    <i className="fas fa-heart me-2"></i>
-                                    Ver Mis Favoritos
-                                </button>
-                            </div>
+                            {/* REMOVIDO: Botones de pedidos y favoritos */}
                         </div>
                     </div>
 

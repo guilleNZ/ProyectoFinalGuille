@@ -6,19 +6,25 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
 
     const handleQuantityChange = (change) => {
         const newQuantity = quantity + change;
-        if (newQuantity >= 1) {
+        if (newQuantity >= 1 && newQuantity <= (product.stock || 1000)) {
             onUpdateQuantity(newQuantity);
             // 👇 Disparar evento al cambiar cantidad
             window.dispatchEvent(new Event('cartUpdated'));
+        } else if (newQuantity > (product.stock || 1000)) {
+            alert(`No hay suficiente stock disponible. Stock actual: ${product.stock}`);
         }
     };
 
     const handleInputChange = (e) => {
         const value = parseInt(e.target.value) || 1;
-        if (value >= 1) {
+        if (value >= 1 && value <= (product.stock || 1000)) {
             onUpdateQuantity(value);
             // 👇 Disparar evento al cambiar cantidad
             window.dispatchEvent(new Event('cartUpdated'));
+        } else if (value > (product.stock || 1000)) {
+            alert(`No hay suficiente stock disponible. Stock actual: ${product.stock}`);
+            // Restaurar el valor anterior
+            e.target.value = quantity;
         }
     };
 
@@ -53,11 +59,13 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
                         value={quantity}
                         onChange={handleInputChange}
                         min="1"
+                        max={product.stock || 1000}
                         style={{ maxWidth: '50px' }}
                     />
                     <button
                         className="btn btn-outline-dark btn-sm"
                         onClick={() => handleQuantityChange(1)}
+                        disabled={quantity >= (product.stock || 1000)}
                     >
                         <i className="fas fa-plus"></i>
                     </button>

@@ -42,9 +42,11 @@ const PaymentSimulator = ({ cartTotal, onSuccess, onCancel }) => {
 
             // 2. Guardar la orden simulada en localStorage (como ejemplo de persistencia del lado del cliente)
             // Opcional: Combina con órdenes existentes
-            const existingOrders = JSON.parse(localStorage.getItem(config.storageKeys.orders)) || []; // Asume una clave para órdenes
+            // --- CAMBIADO: Usar clave directa en lugar de config.storageKeys.orders ---
+            const existingOrders = JSON.parse(localStorage.getItem('simulatedOrders')) || []; // Asume una clave para órdenes
             existingOrders.push(simulatedOrder);
-            localStorage.setItem(config.storageKeys.orders, JSON.stringify(existingOrders)); // Asume una clave para órdenes
+            localStorage.setItem('simulatedOrders', JSON.stringify(existingOrders)); // Asume una clave para órdenes
+            // --- FIN CAMBIADO ---
 
             // 3. Vaciar el carrito en el estado global (usa dispatch para llamar a la acción del reducer)
             // Asumiendo que en tu storeReducer (en src/store.js) tienes una acción como 'CLEAR_CART'
@@ -52,7 +54,9 @@ const PaymentSimulator = ({ cartTotal, onSuccess, onCancel }) => {
             dispatch(clearCartAction); // Usa dispatch para cambiar el estado global
 
             // 4. Vaciar el carrito en localStorage (por si acaso o para modo offline)
-            localStorage.removeItem(config.storageKeys.cart);
+            // --- CAMBIADO: Usar clave directa en lugar de config.storageKeys.cart ---
+            localStorage.removeItem('localCart');
+            // --- FIN CAMBIADO ---
 
             // 5. Disparar un evento para notificar a otros componentes (como la Navbar) que el carrito cambió
             window.dispatchEvent(new Event('cartUpdated'));

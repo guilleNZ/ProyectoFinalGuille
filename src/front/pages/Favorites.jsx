@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getProductById } from "../data/products"; // Importar la función para obtener productos
 
 export const Favorites = () => {
     const [favorites, setFavorites] = useState([]);
@@ -12,13 +13,18 @@ export const Favorites = () => {
 
     const fetchFavorites = () => {
         // Usar SOLO localStorage
-        const localFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        const localFavoritesIds = JSON.parse(localStorage.getItem('favorites')) || [];
 
-        if (localFavorites.length === 0) {
+        if (localFavoritesIds.length === 0) {
             // Si no hay favoritos, redirigir al catálogo
             setFavorites([]);
         } else {
-            setFavorites(localFavorites);
+            // Obtener los productos completos usando los IDs
+            const fullProducts = localFavoritesIds
+                .map(id => getProductById(id))
+                .filter(product => product !== null); // Filtrar productos no encontrados
+
+            setFavorites(fullProducts);
         }
 
         setLoading(false);
@@ -28,20 +34,12 @@ export const Favorites = () => {
         if (!confirm("¿Eliminar de favoritos?")) return;
 
         // Eliminar del estado local
-        const updatedFavorites = favorites.filter(fav => {
-            const favProductId = fav.product_id || fav.product?.id || fav.id;
-            return favProductId !== productId;
-        });
-
+        const updatedFavorites = favorites.filter(fav => fav.id !== productId);
         setFavorites(updatedFavorites);
 
-        // Actualizar localStorage
-        let localFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
-        localFavorites = localFavorites.filter(fav => {
-            const favProductId = fav.product_id || fav.product?.id || fav.id;
-            return favProductId !== productId;
-        });
-        localStorage.setItem('favorites', JSON.stringify(localFavorites));
+        // Actualizar localStorage (guardar solo los IDs)
+        const updatedFavoriteIds = updatedFavorites.map(fav => fav.id);
+        localStorage.setItem('favorites', JSON.stringify(updatedFavoriteIds));
 
         // 👇 Disparar evento para actualizar Navbar
         window.dispatchEvent(new Event('favoritesUpdated'));
@@ -67,9 +65,36 @@ export const Favorites = () => {
             return;
         }
 
-        alert(`Producto ${product.name} agregado al carrito`);
-        // Aquí iría la lógica para agregar al carrito
-        // 👇 Disparar evento para actualizar carrito
+        // Obtener carrito actual
+        let cart = JSON.parse(localStorage.getItem('localCart')) || [];
+
+        // Buscar si el producto ya existe en el carrito
+        const existingItemIndex = cart.findIndex(item => item.id === product.id);
+
+        if (existingItemIndex >= 0) {
+            // Verificar si la cantidad total excede el stock
+            const totalQuantity = cart[existingItemIndex].quantity + 1;
+            if (totalQuantity > product.stock) {
+                alert(`No hay suficiente stock disponible. Stock actual: ${product.stock}. Ya tienes ${cart[existingItemIndex].quantity} en el carrito.`);
+                return;
+            }
+            // Actualizar cantidad existente
+            cart[existingItemIndex].quantity = totalQuantity;
+        } else {
+            // Agregar nuevo producto al carrito con cantidad 1
+            cart.push({
+                ...product,
+                quantity: 1
+            });
+        }
+
+        // Guardar carrito actualizado
+        localStorage.setItem('localCart', JSON.stringify(cart));
+
+        // Mostrar notificación
+        alert(`✅ ${product.name} agregado al carrito`);
+
+        // Disparar evento para actualizar navbar u otros componentes
         window.dispatchEvent(new Event('cartUpdated'));
     };
 
@@ -125,15 +150,14 @@ export const Favorites = () => {
             ) : (
                 <>
                     <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                        {favorites.map((favorite, index) => {
-                            // Manejar diferentes estructuras de datos
-                            const product = favorite.product || favorite;
-                            const productId = product.id || favorite.product_id || index;
-                            const productName = product.name || "Producto";
-                            const productPrice = product.price || 0;
-                            const productBrand = product.brand || "Marca";
-                            const productCategory = product.category || "Categoría";
-                            const productImage = product.image_url || "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80";
+                        {favorites.map((product) => {
+                            const productId = product.id;
+                            const productName = product.name;
+                            const productPrice = product.price;
+                            const productBrand = product.brand;
+                            const productCategory = product.category;
+                            const productImage = product.image_url;
+                            const productDescription = product.description; // Añadido para mostrar descripción si se necesita
 
                             return (
                                 <div key={productId} className="col">
@@ -230,19 +254,13 @@ export const Favorites = () => {
                                         <div className="d-flex justify-content-between mb-2">
                                             <span>Precio total:</span>
                                             <span className="fw-bold">
-                                                ${favorites.reduce((sum, fav) => {
-                                                    const product = fav.product || fav;
-                                                    return sum + (product.price || 0);
-                                                }, 0).toLocaleString()}
+                                                ${favorites.reduce((sum, product) => sum + (product.price || 0), 0).toLocaleString()}
                                             </span>
                                         </div>
                                         <div className="d-flex justify-content-between">
                                             <span>Marcas únicas:</span>
                                             <span className="fw-bold">
-                                                {[...new Set(favorites.map(fav => {
-                                                    const product = fav.product || fav;
-                                                    return product.brand || "Sin marca";
-                                                }))].length}
+                                                {[...new Set(favorites.map(product => product.brand || "Sin marca"))].length}
                                             </span>
                                         </div>
                                     </div>
