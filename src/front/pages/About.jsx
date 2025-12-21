@@ -34,6 +34,55 @@ export const About = () => {
             </div>
 
             <div className="container">
+                {/* Misión y Visión */}
+                <div className="row mb-5">
+                    <div className="col-lg-6 mb-4">
+                        <div className="card border-0 shadow-sm h-100">
+                            <div className="card-body p-5">
+                                <div className="d-flex align-items-center mb-4">
+                                    <div className="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                        style={{ width: '50px', height: '50px' }}>
+                                        <i className="fas fa-bullseye fa-lg"></i>
+                                    </div>
+                                    <h3 className="mb-0" style={{ color: '#1a1a1a' }}>Misión</h3>
+                                </div>
+                                <p className="lead">
+                                    Nuestra misión es conectar a los amantes de la relojería de lujo con piezas auténticas,
+                                    exclusivas y de valor duradero, proporcionando una experiencia de compra segura,
+                                    transparente y excepcional que resalte la artesanía y la historia de cada reloj.
+                                </p>
+                                <p className="text-muted">
+                                    Nos comprometemos a mantener los más altos estándares de autenticidad y servicio,
+                                    convirtiéndonos en el referente confiable en el mercado de relojes de lujo.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-lg-6 mb-4">
+                        <div className="card border-0 shadow-sm h-100">
+                            <div className="card-body p-5">
+                                <div className="d-flex align-items-center mb-4">
+                                    <div className="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                        style={{ width: '50px', height: '50px' }}>
+                                        <i className="fas fa-eye fa-lg"></i>
+                                    </div>
+                                    <h3 className="mb-0" style={{ color: '#1a1a1a' }}>Visión</h3>
+                                </div>
+                                <p className="lead">
+                                    Ser la plataforma líder mundial en la comercialización de relojes de lujo,
+                                    reconocida por nuestra excelencia en autenticación, nuestro conocimiento
+                                    experto y nuestra dedicación a la preservación de la artesanía relojera.
+                                </p>
+                                <p className="text-muted">
+                                    Aspiramos a ser el puente entre los coleccionistas apasionados y las
+                                    marcas legendarias, promoviendo la inversión consciente en activos
+                                    tangibles de valor incuestionable.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Nuestra Historia */}
                 <div className="row mb-5">
                     <div className="col-lg-8 mx-auto">
