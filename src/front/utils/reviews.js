@@ -1,4 +1,4 @@
-// Utilidad para manejar reviews en localStorage
+
 export const reviewUtils = {
   // Obtener reviews de un producto
   getReviews: (productId) => {
@@ -21,7 +21,7 @@ export const reviewUtils = {
 
       const newReview = {
         id: Date.now(),
-        // Cambiar 'name' por 'user' para que coincida con el componente
+        
         user: review.name || "Usuario Anónimo",
         rating: review.rating,
         comment: review.comment,

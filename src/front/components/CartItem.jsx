@@ -8,7 +8,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
         const newQuantity = quantity + change;
         if (newQuantity >= 1 && newQuantity <= (product.stock || 1000)) {
             onUpdateQuantity(newQuantity);
-            // 👇 Disparar evento al cambiar cantidad
+            
             window.dispatchEvent(new Event('cartUpdated'));
         } else if (newQuantity > (product.stock || 1000)) {
             alert(`No hay suficiente stock disponible. Stock actual: ${product.stock}`);
@@ -19,7 +19,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
         const value = parseInt(e.target.value) || 1;
         if (value >= 1 && value <= (product.stock || 1000)) {
             onUpdateQuantity(value);
-            // 👇 Disparar evento al cambiar cantidad
+            
             window.dispatchEvent(new Event('cartUpdated'));
         } else if (value > (product.stock || 1000)) {
             alert(`No hay suficiente stock disponible. Stock actual: ${product.stock}`);
@@ -82,7 +82,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
                     className="btn btn-outline-danger btn-sm"
                     onClick={() => {
                         onRemove();
-                        // 👇 Disparar evento al eliminar
+                        
                         window.dispatchEvent(new Event('cartUpdated'));
                     }}
                     title="Eliminar del carrito"

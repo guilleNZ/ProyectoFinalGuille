@@ -232,10 +232,10 @@ class Favorite(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(
-        # CORREGIDO: con ForeignKey
+        
         Integer, ForeignKey('users.id'), nullable=False)
     product_id: Mapped[int] = mapped_column(
-        # CORREGIDO: con ForeignKey
+        
         Integer, ForeignKey('products.id'), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow)
@@ -245,7 +245,7 @@ class Favorite(db.Model):
     product: Mapped["Product"] = relationship(
         "Product", back_populates="favorites")
 
-    # Restricción única
+    
     __table_args__ = (db.UniqueConstraint(
         'user_id', 'product_id', name='unique_user_product'),)
 

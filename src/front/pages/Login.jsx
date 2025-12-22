@@ -28,7 +28,7 @@ export const Login = () => {
                 throw new Error(data.msg || "Error al iniciar sesión");
             }
 
-            // SOLUCIÓN: Verificar y completar los datos del usuario
+            
             const userData = data.user || {};
 
             // Crear objeto de usuario completo con valores por defecto

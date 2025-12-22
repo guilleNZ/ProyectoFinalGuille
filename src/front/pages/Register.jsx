@@ -61,10 +61,10 @@ export const Register = () => {
                 throw new Error(data.msg || "Error al registrar usuario");
             }
 
-            // SOLUCIÓN: Verificar y completar los datos del usuario
+            
             const userData = data.user || {};
 
-            // Crear objeto de usuario completo con valores por defecto
+            
             const completeUserData = {
                 id: userData.id || Date.now(),
                 email: userData.email || formData.email,

@@ -254,15 +254,15 @@ from api.seed_data import populate_database # Importamos la función
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
-# Configuración CORS
+
 CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
-# Configuración JWT
+
 app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", "super-secret-key")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
 jwt = JWTManager(app)
 
-# Configuración DB
+
 db_url = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://") if db_url else "sqlite:////tmp/test.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -291,9 +291,9 @@ def serve_any_other_file(path):
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
     
-    # --- POBLAR DB AL INICIAR ---
+    
     with app.app_context():
-        # Verificamos si ya hay productos para no borrar todo en cada reinicio
+        
         if Product.query.first() is None:
             print("Base de datos vacía detectada...")
             populate_database()

@@ -12,10 +12,10 @@ const ProductCard = ({ product }) => {
     }, [product.id]);
 
     const checkIfFavorite = () => {
-        // Usar SOLO localStorage
+       
         const token = localStorage.getItem("token");
         if (!token) {
-            // Si no hay token, no verificar favoritos
+            
             setIsFavorite(false);
             setFavoriteId(null);
             return;
@@ -26,7 +26,7 @@ const ProductCard = ({ product }) => {
         setIsFavorite(isFav);
 
         if (isFav) {
-            setFavoriteId(product.id); // Usar el ID del producto como ID de favorito
+            setFavoriteId(product.id); 
         } else {
             setFavoriteId(null);
         }
@@ -74,7 +74,7 @@ const ProductCard = ({ product }) => {
         setIsFavorite(newIsFavorite);
         setFavoriteId(newIsFavorite ? product.id : null);
 
-        // Disparar evento para actualizar Navbar u otros componentes
+        
         window.dispatchEvent(new Event('favoritesUpdated'));
 
         setLoadingFavorite(false);
@@ -120,7 +120,7 @@ const ProductCard = ({ product }) => {
         // Mostrar notificación
         showNotification(`✅ ${product.name} agregado al carrito`, "success");
 
-        // Disparar evento para actualizar navbar u otros componentes
+        
         window.dispatchEvent(new Event('cartUpdated'));
     };
 
@@ -142,7 +142,7 @@ const ProductCard = ({ product }) => {
 
         document.body.appendChild(notification);
 
-        // Auto-remove after 3 seconds
+        
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.remove();

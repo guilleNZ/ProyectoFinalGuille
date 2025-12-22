@@ -13,9 +13,7 @@ import { Profile } from "./pages/Profile";
 import { Favorites } from "./pages/Favorites";
 import { About } from "./pages/About";
 import { Contact } from "./pages/Contact";
-// --- AÑADIDO: Importar el componente Investment ---
 import { Investment } from "./pages/Investment";
-// --- FIN AÑADIDO ---
 import { JoinTeam } from "./pages/JoinTeam";
 export const router = createBrowserRouter([
   {
@@ -74,12 +72,12 @@ export const router = createBrowserRouter([
         path: "/contact",
         element: <Contact />
       },
-      // --- AÑADIDO: Nueva ruta para Investment ---
+      
       {
         path: "/investment",
         element: <Investment />
       },
-      // --- FIN AÑADIDO ---
+      
       {
         path: "/join-team",
         element: <JoinTeam />

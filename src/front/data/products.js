@@ -520,7 +520,7 @@ export const searchProducts = (searchTerm) => {
 // Estadísticas
 export const getCatalogStats = () => {
   const totalProducts = productsData.length;
-  const totalBrands = getUniqueBrands().length - 1; // Excluye "all"
+  const totalBrands = getUniqueBrands().length - 1; 
   const prices = productsData.map((p) => p.price);
 
   return {

@@ -1,18 +1,17 @@
-// src/front/pages/Checkout.jsx
+
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// --- CORRECCIÓN: Importa useGlobalReducer desde el archivo correcto ---
+
 import useGlobalReducer from "../hooks/useGlobalReducer";
-// --- FIN CORRECCIÓN ---
-// --- AÑADIDO: Importar el componente PaymentSimulator ---
+
 import PaymentSimulator from "../components/PaymentSimulator";
-// --- FIN AÑADIDO ---
+
 
 export const Checkout = () => {
-    // --- CORRECCIÓN: Usa el hook correcto ---
-    const { store, dispatch } = useGlobalReducer(); // Accede al store global y a la función dispatch
-    // --- FIN CORRECCIÓN ---
+  
+    const { store, dispatch } = useGlobalReducer(); 
+    
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -26,27 +25,23 @@ export const Checkout = () => {
         cvv: ""
     });
     const [paymentMethod, setPaymentMethod] = useState("card"); // 'card' o 'paypal'
-    // --- AÑADIDO: Estado para mostrar el simulador ---
+    
     const [showPaymentSimulator, setShowPaymentSimulator] = useState(false);
-    // --- FIN AÑADIDO ---
-    // --- AÑADIDO: Estado para el carrito (obtenerlo del store o localStorage) ---
+    
     const [cart, setCart] = useState(null);
 
     useEffect(() => {
-        // Cargar carrito del store global o localStorage al montar
+        
         const loadCart = () => {
-            // Opción 1: Intentar usar el carrito del store global (si estás usando Flux con carrito ahí)
-            // Asumiendo que tu store.js (usando useGlobalReducer) mantiene el carrito en store.cart
-            // y que tu componente Cart o Navbar lo actualiza allí.
-            // Si store.cart es una estructura como { items: [...], total: ... }
+            
             if (store && store.cart && store.cart.items && store.cart.items.length > 0) {
-                setCart(store.cart); // Asigna directamente el carrito del store global
+                setCart(store.cart); 
                 console.log("Carrito cargado del store global:", store.cart);
-                return; // Sale si lo encontró en el store
+                return; 
             }
 
-            // Opción 2: Cargar carrito de localStorage (más común para carritos no persistentes en DB o modo offline)
-            const storedCart = JSON.parse(localStorage.getItem('localCart')) || []; // CAMBIADO: Usar 'localCart'
+           
+            const storedCart = JSON.parse(localStorage.getItem('localCart')) || []; 
             if (storedCart.length > 0) {
                 const total = storedCart.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 0), 0);
                 const cartData = {
@@ -55,22 +50,22 @@ export const Checkout = () => {
                 };
                 setCart(cartData);
                 console.log("Carrito cargado de localStorage:", cartData);
-                return; // Sale si lo encontró en localStorage
+                return; 
             }
 
-            // Si no hay carrito en ningún lado, redirigir al carrito vacío
+            
             console.warn("Carrito vacío o no encontrado en store ni localStorage, redirigiendo a /cart");
             navigate("/cart");
         };
 
         loadCart();
-    }, [store.cart, navigate]); // Agrega store.cart como dependencia si se usa para cargar el carrito
+    }, [store.cart, navigate]); 
 
-    // Manejar cambios en los inputs del formulario
+    
     const handleInputChange = (e) => {
         const { name, value } = e.target;
 
-        // Formatear número de tarjeta (opcional)
+        
         if (name === "cardNumber") {
             const formattedValue = value.replace(/\D/g, "").slice(0, 16);
             const groups = formattedValue.match(/.{1,4}/g);
@@ -81,7 +76,7 @@ export const Checkout = () => {
             return;
         }
 
-        // Formatear fecha de expiración (opcional)
+        
         if (name === "expiryDate") {
             const formattedValue = value.replace(/\D/g, "").slice(0, 4);
             if (formattedValue.length >= 2) {
@@ -104,11 +99,11 @@ export const Checkout = () => {
         });
     };
 
-    // Manejar el envío del formulario de checkout
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError(null); // Limpiar errores previos
+        setError(null); 
 
         // Validaciones
         if (!formData.shippingAddress.trim()) {
@@ -137,66 +132,54 @@ export const Checkout = () => {
             // Simular procesamiento de pago (2 segundos)
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            // --- MOSTRAR EL COMPONENTE DE SIMULACIÓN DE PAGO ---
+            
             setShowPaymentSimulator(true);
-            // Deja de mostrar el estado de carga del formulario principal aquí
+            
             setLoading(false);
-            // El resto de la lógica (éxito/cancelación) se manejará dentro del componente PaymentSimulator
+            
 
         } catch (err) {
             setError(err.message || "Ocurrió un error inesperado durante la simulación del checkout.");
             console.error("Error en handleSubmit:", err);
         }
-        // setLoading(false); // Ya no es necesario aquí porque setLoading(false) se hizo antes de mostrar el simulador
+        
     };
 
-    // --- AÑADIDO: Función para manejar el éxito del simulador ---
+    
     const handlePaymentSuccess = (simulatedOrderData) => {
         console.log("Pago simulado exitoso. Datos de la orden:", simulatedOrderData);
 
-        // --- ACCIONES POST-PAGO EXITOSO (SIMULADO) ---
-        // 1. Vaciar el carrito en el estado global (usa dispatch para llamar a la acción del reducer)
-        // Asumiendo que en tu storeReducer (en src/store.js) tienes una acción como 'CLEAR_CART'
-        const clearCartAction = { type: 'CLEAR_CART' }; // Define el tipo de acción
-        dispatch(clearCartAction); // Usa dispatch para cambiar el estado global
+        
+        const clearCartAction = { type: 'CLEAR_CART' }; 
+        dispatch(clearCartAction); 
 
-        // 2. Vaciar el carrito en localStorage (por si acaso o para modo offline)
-        localStorage.removeItem('localCart'); // CAMBIADO: Usar 'localCart'
+        
+        localStorage.removeItem('localCart'); 
 
-        // 3. Opcional: Guardar la orden simulada en localStorage (si quieres tener un historial local de órdenes simuladas)
+        
         if (simulatedOrderData) {
             const existingSimulatedOrders = JSON.parse(localStorage.getItem('simulatedOrders')) || []; // Asume una clave para órdenes simuladas
             existingSimulatedOrders.push(simulatedOrderData);
             localStorage.setItem('simulatedOrders', JSON.stringify(existingSimulatedOrders));
         }
 
-        // 4. Disparar un evento para notificar a otros componentes (como la Navbar) que el carrito cambió
+        
         window.dispatchEvent(new Event('cartUpdated'));
 
-        // 5. Opcional: Mostrar mensaje de éxito al usuario
+        
         alert("✅ ¡Compra realizada exitosamente! Tu orden ha sido creada.");
 
-        // 6. Ocultar el simulador (si estás controlando su visibilidad desde Checkout.jsx)
-        // setShowPaymentSimulator(false); // Descomenta si tienes este estado en Checkout.jsx
-
-        // 7. Redirigir a la página de órdenes
+        
         navigate("/orders");
     };
-    // --- FIN AÑADIDO ---
-
-    // --- AÑADIDO: Función para manejar la cancelación del simulador ---
+    
     const handlePaymentCancel = () => {
         console.log("Pago simulado cancelado por el usuario.");
-        // Ocultar el componente de simulación
+        
         setShowPaymentSimulator(false);
-        // Opcional: Permitir volver a intentar el checkout desde el formulario principal
-        // setLoading(false); // No es necesario aquí si setLoading se maneja internamente en PaymentSimulator si lo usa
-        // setError(null); // Limpiar error si existía
+        
     };
-    // --- FIN AÑADIDO ---
-
-    // --- RENDERIZADO ---
-    // Mostrar mensaje de carga si no hay carrito aún
+   
     if (!cart) {
         return (
             <div className="container py-5 text-center">
@@ -229,7 +212,7 @@ export const Checkout = () => {
                 </div>
             )}
 
-            {/* --- CONDICIONAL: Mostrar Checkout o PaymentSimulator --- */}
+            
             {!showPaymentSimulator ? (
                 // --- FORMULARIO DE CHECKOUT NORMAL ---
                 <div className="row">
@@ -475,18 +458,18 @@ export const Checkout = () => {
                     </div>
                 </div>
             ) : (
-                // --- COMPONENTE DE SIMULACIÓN DE PAGO ---
+                
                 <div className="row justify-content-center">
                     <div className="col-md-8">
                         <PaymentSimulator
-                            cartTotal={cart.total} // Pasa el total del carrito al simulador
-                            onSuccess={handlePaymentSuccess} // Pasa la función para manejar éxito
-                            onCancel={handlePaymentCancel}   // Pasa la función para manejar cancelación
+                            cartTotal={cart.total} 
+                            onSuccess={handlePaymentSuccess} 
+                            onCancel={handlePaymentCancel}   
                         />
                     </div>
                 </div>
             )}
-            {/* --- FIN CONDICIONAL --- */}
+            
 
         </div>
     );

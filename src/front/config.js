@@ -1,41 +1,41 @@
-// Configuración para desarrollo/producción
+
 export const config = {
-  // URL del backend - priorizar variable de entorno, sino usar localhost
+  
   backendUrl:
     import.meta.env.VITE_BACKEND_URL ||
-    "https://effective-chainsaw-pj6r45q5q7gghr47q-3001.app.github.dev/api", // <-- CORREGIDO: Quité los espacios al final
+    "https://effective-chainsaw-pj6r45q5q7gghr47q-3001.app.github.dev/api", 
 
-  // Configuración de la aplicación
+  
   appName: "Luxury Watches",
   version: "1.0.0",
 
-  // Configuración de pagos (modo sandbox para desarrollo)
+  
   stripePublicKey:
     import.meta.env.VITE_STRIPE_PUBLIC_KEY || "pk_test_your_key_here",
 
-  // Configuración de localStorage
+  
   storageKeys: {
     token: "luxury_watches_token",
     user: "luxury_watches_user",
     cart: "luxury_watches_cart",
     wishlist: "luxury_watches_wishlist",
-    // Añadir esta línea
+    
     simulatedOrders: "luxury_watches_simulated_orders",
-    // ... otras claves ...
+    
   },
 
   // Tiempos de expiración
   tokenExpiry: 24 * 60 * 60 * 1000, // 24 horas en milisegundos
 
-  // URLs de imágenes por defecto
+  
   defaultImages: {
     product:
-      "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80", // <-- Quité espacios aquí también si los había
-    user: "https://ui-avatars.com/api/?name=Usuario&background=1a1a1a&color=fff", // <-- Quité espacios aquí también si los había
+      "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800&q=80", 
+    user: "https://ui-avatars.com/api/?name=Usuario&background=1a1a1a&color=fff", 
   },
 };
 
-// Helper para hacer fetch con autenticación
+
 export const authenticatedFetch = async (url, options = {}) => {
   const token = localStorage.getItem(config.storageKeys.token);
 
@@ -50,12 +50,12 @@ export const authenticatedFetch = async (url, options = {}) => {
 
   try {
     const response = await fetch(`${config.backendUrl}${url}`, {
-      // <-- Esta línea usa config.backendUrl
+      
       ...options,
       headers,
     });
 
-    // Si el token expiró o no es válido
+    
     if (response.status === 401) {
       localStorage.removeItem(config.storageKeys.token);
       localStorage.removeItem(config.storageKeys.user);
@@ -70,9 +70,9 @@ export const authenticatedFetch = async (url, options = {}) => {
   }
 };
 
-// Helper para manejo offline
+
 export const offlineStorage = {
-  // Guardar datos localmente como fallback
+  
   save: (key, data) => {
     try {
       localStorage.setItem(key, JSON.stringify(data));
@@ -83,7 +83,7 @@ export const offlineStorage = {
     }
   },
 
-  // Cargar datos localmente
+  
   load: (key) => {
     try {
       const data = localStorage.getItem(key);
@@ -99,7 +99,7 @@ export const offlineStorage = {
     localStorage.removeItem(key);
   },
 
-  // Sincronizar carrito offline con backend
+  
   syncCart: async () => {
     const offlineCart = offlineStorage.load(config.storageKeys.cart);
     const token = localStorage.getItem(config.storageKeys.token);
@@ -119,7 +119,7 @@ export const offlineStorage = {
         });
       }
 
-      // Limpiar carrito offline después de sincronizar
+      
       offlineStorage.clear(config.storageKeys.cart);
     } catch (error) {
       console.log("Cart sync failed, keeping offline data");

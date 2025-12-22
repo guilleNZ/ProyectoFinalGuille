@@ -19,7 +19,7 @@ export const Profile = () => {
     }, []);
 
     const fetchProfile = () => {
-        // SOLUCIÓN: Primero intentar cargar datos de localStorage
+        
         const userData = localStorage.getItem("user");
         const token = localStorage.getItem("token");
 
@@ -41,7 +41,7 @@ export const Profile = () => {
                 });
             } catch (error) {
                 console.error("Error parsing user data:", error);
-                // Si hay error en el parseo, usar valores por defecto
+                
                 setUser({
                     first_name: "",
                     last_name: "",
@@ -51,7 +51,7 @@ export const Profile = () => {
                 });
             }
         } else {
-            // Si no hay datos en localStorage, crear objeto vacío
+            
             setUser({
                 first_name: "",
                 last_name: "",
@@ -102,7 +102,7 @@ export const Profile = () => {
         }
 
         try {
-            // SOLUCIÓN: Actualizar localStorage inmediatamente
+            
             const updatedUser = {
                 ...user,
                 ...formData
@@ -137,7 +137,7 @@ export const Profile = () => {
         );
     }
 
-    // SOLUCIÓN: Asegurar que user siempre tenga un valor
+    
     const safeUser = user || {
         first_name: "",
         last_name: "",
@@ -328,7 +328,7 @@ export const Profile = () => {
                                 </div>
                             </div>
 
-                            {/* REMOVIDO: Botones de pedidos y favoritos */}
+                            
                         </div>
                     </div>
 

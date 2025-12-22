@@ -17,7 +17,7 @@ export const Orders = () => {
         const token = localStorage.getItem(config.storageKeys.token);
 
         if (!token) {
-            // Intentar cargar órdenes offline
+            
             const offlineOrders = JSON.parse(localStorage.getItem('offline_orders')) || [];
             setOrders(offlineOrders);
             setLoading(false);
@@ -39,7 +39,7 @@ export const Orders = () => {
             setOrders(data);
         } catch (error) {
             setError(error.message);
-            // Fallback a órdenes offline
+            
             const offlineOrders = JSON.parse(localStorage.getItem('offline_orders')) || [];
             setOrders(offlineOrders);
         } finally {

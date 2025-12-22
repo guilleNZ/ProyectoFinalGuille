@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getProductById } from "../data/products"; // Importar la función para obtener productos
+import { getProductById } from "../data/products"; 
 
 export const Favorites = () => {
     const [favorites, setFavorites] = useState([]);
@@ -12,17 +12,17 @@ export const Favorites = () => {
     }, []);
 
     const fetchFavorites = () => {
-        // Usar SOLO localStorage
+        
         const localFavoritesIds = JSON.parse(localStorage.getItem('favorites')) || [];
 
         if (localFavoritesIds.length === 0) {
             // Si no hay favoritos, redirigir al catálogo
             setFavorites([]);
         } else {
-            // Obtener los productos completos usando los IDs
+           
             const fullProducts = localFavoritesIds
                 .map(id => getProductById(id))
-                .filter(product => product !== null); // Filtrar productos no encontrados
+                .filter(product => product !== null); 
 
             setFavorites(fullProducts);
         }
@@ -33,15 +33,15 @@ export const Favorites = () => {
     const handleRemoveFavorite = (productId) => {
         if (!confirm("¿Eliminar de favoritos?")) return;
 
-        // Eliminar del estado local
+        
         const updatedFavorites = favorites.filter(fav => fav.id !== productId);
         setFavorites(updatedFavorites);
 
-        // Actualizar localStorage (guardar solo los IDs)
+        
         const updatedFavoriteIds = updatedFavorites.map(fav => fav.id);
         localStorage.setItem('favorites', JSON.stringify(updatedFavoriteIds));
 
-        // 👇 Disparar evento para actualizar Navbar
+        
         window.dispatchEvent(new Event('favoritesUpdated'));
     };
 
@@ -52,7 +52,7 @@ export const Favorites = () => {
         setFavorites([]);
         localStorage.removeItem('favorites');
 
-        // 👇 Disparar evento para actualizar Navbar
+        
         window.dispatchEvent(new Event('favoritesUpdated'));
     };
 
@@ -94,7 +94,7 @@ export const Favorites = () => {
         // Mostrar notificación
         alert(`✅ ${product.name} agregado al carrito`);
 
-        // Disparar evento para actualizar navbar u otros componentes
+        
         window.dispatchEvent(new Event('cartUpdated'));
     };
 

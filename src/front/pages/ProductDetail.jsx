@@ -16,14 +16,14 @@ export const ProductDetail = () => {
     const [favoriteCount, setFavoriteCount] = useState(0);
 
     useEffect(() => {
-        // Buscar producto usando la función helper
+        
         const productId = parseInt(id);
         const foundProduct = getProductById(productId);
 
         if (foundProduct) {
             setProduct(foundProduct);
 
-            // Simular productos relacionados (misma marca)
+            
             const allProducts = [
                 { id: (productId % 18) + 1, name: "Reloj relacionado 1", price: 5000, brand: foundProduct.brand, image_url: foundProduct.image_url },
                 { id: ((productId + 1) % 18) + 1, name: "Reloj relacionado 2", price: 7500, brand: foundProduct.brand, image_url: foundProduct.image_url },
@@ -31,10 +31,10 @@ export const ProductDetail = () => {
             ];
             setRelatedProducts(allProducts);
 
-            // Verificar si es favorito desde localStorage
+            
             checkIfFavorite(productId);
 
-            // Obtener contador de favoritos desde localStorage o simular uno
+            
             const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
             const count = favorites.filter(favId => favId === productId).length;
             setFavoriteCount(count);
@@ -89,7 +89,7 @@ export const ProductDetail = () => {
         setIsFavorite(newIsFavorite);
         setFavoriteCount(newFavoriteCount);
 
-        // Disparar evento para actualizar navbar u otros componentes
+        
         window.dispatchEvent(new Event('favoritesUpdated'));
 
         setFavoriteLoading(false);
@@ -113,7 +113,7 @@ export const ProductDetail = () => {
 
         document.body.appendChild(notification);
 
-        // Auto-remove after 3 seconds
+        
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.remove();
@@ -164,10 +164,10 @@ export const ProductDetail = () => {
         // Mostrar notificación
         showNotification(`✅ ${quantity} x ${product.name} agregado al carrito`, "success");
 
-        // Disparar evento para actualizar navbar u otros componentes
+        
         window.dispatchEvent(new Event('cartUpdated'));
 
-        // Redirigir al carrito después de un breve delay
+        
         setTimeout(() => {
             navigate("/cart");
         }, 1500);
@@ -185,7 +185,7 @@ export const ProductDetail = () => {
             })
                 .catch(error => console.log('Error sharing:', error));
         } else {
-            // Fallback para navegadores que no soportan Web Share API
+            
             navigator.clipboard.writeText(`${shareText} ${shareUrl}`)
                 .then(() => {
                     showNotification("✅ Enlace copiado al portapapeles", "success");
@@ -223,7 +223,7 @@ export const ProductDetail = () => {
         );
     }
 
-    // Simular imágenes adicionales
+    
     const productImages = [
         product.image_url,
         product.image_url,
@@ -232,7 +232,7 @@ export const ProductDetail = () => {
 
     return (
         <div className="container py-4">
-            {/* Migas de pan */}
+            
             <nav aria-label="breadcrumb" className="mb-4">
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item">
@@ -257,7 +257,7 @@ export const ProductDetail = () => {
             <div className="row">
                 {/* Columna izquierda: Imágenes */}
                 <div className="col-lg-6 mb-4">
-                    {/* REMOVIDO: sticky-top y top: '20px' para evitar conflictos con el navbar */}
+                    
                     <div>
                         {/* Imagen principal */}
                         <div className="position-relative mb-3">

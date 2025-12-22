@@ -49,7 +49,7 @@ def register():
 
         db.session.commit()
 
-        # Crear token - CORREGIDO: Convertir user.id a string
+        # Crear token 
         access_token = create_access_token(identity=str(user.id))
 
         return jsonify({
@@ -77,7 +77,7 @@ def login():
         if not user or not check_password_hash(user.password, data['password']):
             return jsonify({"msg": "Credenciales incorrectas"}), 401
 
-        # Crear token - CORREGIDO: Convertir user.id a string
+        # Crear token 
         access_token = create_access_token(identity=str(user.id))
 
         return jsonify({
@@ -93,16 +93,16 @@ def login():
 @jwt_required()
 def get_profile():
     try:
-        user_id_str = get_jwt_identity()  # Obtiene el string
-        user_id_int = int(user_id_str)  # Convierte a int para la consulta
-        user = User.query.get(user_id_int)  # Usa el int
+        user_id_str = get_jwt_identity()  
+        user_id_int = int(user_id_str) 
+        user = User.query.get(user_id_int)  
 
         if not user:
             return jsonify({"msg": "Usuario no encontrado"}), 404
 
         return jsonify(user.serialize()), 200
 
-    except ValueError:  # Captura error si identity no es un número
+    except ValueError:  
         return jsonify({"msg": "Error interno de autenticación"}), 500
     except Exception as e:
         return jsonify({"msg": "Error en el servidor", "error": str(e)}), 500
@@ -115,29 +115,26 @@ def create_product():
     try:
         data = request.get_json()
 
-        # Validaciones básicas (ejemplo)
-        # CORRECCIÓN: Añadido 'model' a los campos requeridos, ya que es obligatorio en el modelo Product
+        
         required_fields = ['name', 'description',
                            'price', 'stock', 'brand', 'category_id', 'model']
         for field in required_fields:
             if field not in data:
                 return jsonify({"msg": f"El campo '{field}' es requerido"}), 400
 
-        # Crear el producto - CORRECCIÓN: Añadido model=data['model']
+        # Crear el producto 
         new_product = Product(
             name=data['name'],
             description=data['description'],
             price=data['price'],
             stock=data['stock'],
             brand=data['brand'],
-            model=data['model'],  # <-- Línea añadida y crucial
-            # Campos opcionales: Usamos .get() para evitar KeyError si no están presentes
+            model=data['model'],
             material=data.get('material'),
             movement=data.get('movement'),
             case_diameter=data.get('case_diameter'),
             water_resistance=data.get('water_resistance'),
             image_url=data.get('image_url'),
-            # La categoría ya existe (asumido)
             category_id=data['category_id']
         )
 
@@ -148,7 +145,7 @@ def create_product():
 
     except Exception as e:
         db.session.rollback()
-        # Es útil loguear el error para debugging
+        
         print(f"Error al crear producto: {e}")
         return jsonify({"msg": "Error al crear producto", "error": str(e)}), 500
 
@@ -181,15 +178,15 @@ def get_product(product_id):
 @jwt_required()
 def get_cart():
     try:
-        user_id_str = get_jwt_identity()  # Obtiene el string
-        user_id_int = int(user_id_str)  # Convierte a int para la consulta
+        user_id_str = get_jwt_identity()  
+        user_id_int = int(user_id_str)  
 
         # Obtener carrito activo o crear uno
         cart = Cart.query.filter_by(
-            user_id=user_id_int, is_active=True).first()  # Usa el int
+            user_id=user_id_int, is_active=True).first()  
 
         if not cart:
-            cart = Cart(user_id=user_id_int)  # Usa el int
+            cart = Cart(user_id=user_id_int)  
             db.session.add(cart)
             db.session.commit()
 
@@ -214,7 +211,7 @@ def get_cart():
 
         return jsonify(response), 200
 
-    except ValueError:  # Captura error si identity no es un número
+    except ValueError:  
         return jsonify({"msg": "Error interno de autenticación"}), 500
     except Exception as e:
         return jsonify({"msg": "Error al obtener carrito", "error": str(e)}), 500
@@ -224,8 +221,8 @@ def get_cart():
 @jwt_required()
 def add_to_cart():
     try:
-        user_id_str = get_jwt_identity()  # Obtiene el string
-        user_id_int = int(user_id_str)  # Convierte a int para la consulta
+        user_id_str = get_jwt_identity()  
+        user_id_int = int(user_id_str)  
         data = request.get_json()
 
         if not data.get('product_id') or not data.get('quantity'):
@@ -265,15 +262,15 @@ def add_to_cart():
             )
             db.session.add(new_item)
 
-        # CORRECCIÓN: Actualizar stock del producto
-        # Asegúrate de que la resta sea correcta y no deje stock negativo
+        
+        
         product.stock = max(0, product.stock - data['quantity'])
 
         db.session.commit()
 
         return jsonify({"msg": "Producto agregado al carrito"}), 200
 
-    except ValueError:  # Captura error si identity no es un número
+    except ValueError:  
         return jsonify({"msg": "Error interno de autenticación"}), 500
     except Exception as e:
         db.session.rollback()
@@ -284,13 +281,13 @@ def add_to_cart():
 @jwt_required()
 def remove_from_cart(item_id):
     try:
-        user_id_str = get_jwt_identity()  # Obtiene el string
-        user_id_int = int(user_id_str)  # Convierte a int para la consulta
+        user_id_str = get_jwt_identity()  
+        user_id_int = int(user_id_str)  
 
-        # Primero verificar si el item pertenece al usuario correcto
+        
         cart_item = CartItem.query.join(Cart).filter(
             CartItem.id == item_id,
-            Cart.user_id == user_id_int  # Verifica pertenencia
+            Cart.user_id == user_id_int 
         ).first()
 
         if not cart_item:
@@ -307,7 +304,7 @@ def remove_from_cart(item_id):
 
         return jsonify({"msg": "Item eliminado del carrito"}), 200
 
-    except ValueError:  # Captura error si identity no es un número
+    except ValueError:  
         return jsonify({"msg": "Error interno de autenticación"}), 500
     except Exception as e:
         db.session.rollback()
@@ -320,12 +317,12 @@ def remove_from_cart(item_id):
 @jwt_required()
 def create_order():
     try:
-        user_id_str = get_jwt_identity()  # Obtiene el string
-        user_id_int = int(user_id_str)  # Convierte a int para la consulta
+        user_id_str = get_jwt_identity()  
+        user_id_int = int(user_id_str)  
 
-        # Obtener carrito activo
+        
         cart = Cart.query.filter_by(
-            user_id=user_id_int, is_active=True).first()  # Usa el int
+            user_id=user_id_int, is_active=True).first()  
         if not cart:
             return jsonify({"msg": "Carrito no encontrado"}), 404
 
@@ -342,12 +339,12 @@ def create_order():
 
         # Crear orden
         order = Order(
-            user_id=user_id_int,  # Usa el int
+            user_id=user_id_int,  
             total_amount=total,
-            status="completed"  # Simulamos pago exitoso
+            status="completed"  
         )
         db.session.add(order)
-        db.session.flush()  # Para obtener el ID
+        db.session.flush()  
 
         # Crear items de la orden
         for item in cart_items:
@@ -373,7 +370,7 @@ def create_order():
             "order": order.serialize()
         }), 201
 
-    except ValueError:  # Captura error si identity no es un número
+    except ValueError:  
         return jsonify({"msg": "Error interno de autenticación"}), 500
     except Exception as e:
         db.session.rollback()
@@ -384,9 +381,9 @@ def create_order():
 @jwt_required()
 def get_orders():
     try:
-        user_id_str = get_jwt_identity()  # Obtiene el string
-        user_id_int = int(user_id_str)  # Convierte a int para la consulta
-        orders = Order.query.filter_by(user_id=user_id_int).all()  # Usa el int
+        user_id_str = get_jwt_identity()  
+        user_id_int = int(user_id_str)  
+        orders = Order.query.filter_by(user_id=user_id_int).all()  
 
         orders_data = []
         for order in orders:
@@ -408,7 +405,7 @@ def get_orders():
 
         return jsonify(orders_data), 200
 
-    except ValueError:  # Captura error si identity no es un número
+    except ValueError:  
         return jsonify({"msg": "Error interno de autenticación"}), 500
     except Exception as e:
         return jsonify({"msg": "Error al obtener órdenes", "error": str(e)}), 500
@@ -420,12 +417,12 @@ def get_orders():
 @jwt_required()
 def get_favorites():
     try:
-        user_id_str = get_jwt_identity()  # Obtiene el string
-        user_id_int = int(user_id_str)  # Convierte a int para la consulta
+        user_id_str = get_jwt_identity()  
+        user_id_int = int(user_id_str)  
 
         # Obtener favoritos del usuario
         favorites = Favorite.query.filter_by(
-            user_id=user_id_int).all()  # Usa el int
+            user_id=user_id_int).all()  
 
         # Obtener detalles de productos
         favorites_with_details = []
@@ -438,7 +435,7 @@ def get_favorites():
 
         return jsonify(favorites_with_details), 200
 
-    except ValueError:  # Captura error si identity no es un número
+    except ValueError:  
         return jsonify({"msg": "Error interno de autenticación"}), 500
     except Exception as e:
         return jsonify({"msg": "Error al obtener favoritos", "error": str(e)}), 500
@@ -448,8 +445,8 @@ def get_favorites():
 @jwt_required()
 def add_to_favorites():
     try:
-        user_id_str = get_jwt_identity()  # Obtiene el string
-        user_id_int = int(user_id_str)  # Convierte a int para la consulta
+        user_id_str = get_jwt_identity()  
+        user_id_int = int(user_id_str)  
         data = request.get_json()
 
         if not data.get('product_id'):
@@ -471,7 +468,7 @@ def add_to_favorites():
 
         # Crear nuevo favorito
         favorite = Favorite(
-            user_id=user_id_int,  # Usa el int
+            user_id=user_id_int,  
             product_id=data['product_id']
         )
 
@@ -483,7 +480,7 @@ def add_to_favorites():
             "favorite": favorite.serialize()
         }), 201
 
-    except ValueError:  # Captura error si identity no es un número
+    except ValueError:  
         return jsonify({"msg": "Error interno de autenticación"}), 500
     except Exception as e:
         db.session.rollback()
@@ -494,12 +491,12 @@ def add_to_favorites():
 @jwt_required()
 def remove_from_favorites(product_id):
     try:
-        user_id_str = get_jwt_identity()  # Obtiene el string
-        user_id_int = int(user_id_str)  # Convierte a int para la consulta
+        user_id_str = get_jwt_identity()  
+        user_id_int = int(user_id_str)  
 
         # Buscar el favorito
         favorite = Favorite.query.filter_by(
-            user_id=user_id_int,  # Usa el int
+            user_id=user_id_int,  
             product_id=product_id
         ).first()
 
@@ -512,7 +509,7 @@ def remove_from_favorites(product_id):
 
         return jsonify({"msg": "Producto eliminado de favoritos"}), 200
 
-    except ValueError:  # Captura error si identity no es un número
+    except ValueError:  
         return jsonify({"msg": "Error interno de autenticación"}), 500
     except Exception as e:
         db.session.rollback()
@@ -523,12 +520,11 @@ def remove_from_favorites(product_id):
 @jwt_required()
 def check_favorite(product_id):
     try:
-        user_id_str = get_jwt_identity()  # Obtiene el string
-        user_id_int = int(user_id_str)  # Convierte a int para la consulta
-
+        user_id_str = get_jwt_identity()  
+        user_id_int = int(user_id_str)  
         # Verificar si el producto está en favoritos
         favorite = Favorite.query.filter_by(
-            user_id=user_id_int,  # Usa el int
+            user_id=user_id_int,  
             product_id=product_id
         ).first()
 
@@ -537,7 +533,7 @@ def check_favorite(product_id):
             "favorite_id": favorite.id if favorite else None
         }), 200
 
-    except ValueError:  # Captura error si identity no es un número
+    except ValueError:  
         return jsonify({"msg": "Error interno de autenticación"}), 500
     except Exception as e:
         return jsonify({"msg": "Error al verificar favorito", "error": str(e)}), 500

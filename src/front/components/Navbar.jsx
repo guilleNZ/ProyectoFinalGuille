@@ -9,7 +9,7 @@ export const Navbar = () => {
 	const [cartCount, setCartCount] = useState(0);
 	const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-	// Función para mostrar notificaciones sin Bootstrap JS
+	
 	const showNotification = (message, type) => {
 		const notification = document.createElement('div');
 		notification.className = `alert alert-${type} position-fixed`;
@@ -65,7 +65,7 @@ export const Navbar = () => {
 
 	const updateCartCount = () => {
 		const localCart = JSON.parse(localStorage.getItem('localCart')) || [];
-		const count = localCart.reduce((sum, item) => sum + (item.quantity || 1), 0); // Sumar cantidades
+		const count = localCart.reduce((sum, item) => sum + (item.quantity || 1), 0); 
 		setCartCount(count);
 	};
 
@@ -85,7 +85,7 @@ export const Navbar = () => {
 		showNotification("✅ Sesión cerrada exitosamente", "success");
 	};
 
-	// 👇 Escuchar eventos personalizados y cambios en localStorage
+	
 	useEffect(() => {
 		const syncCounts = () => {
 			checkAuthStatus();
@@ -95,17 +95,17 @@ export const Navbar = () => {
 
 		syncCounts();
 
-		// Escuchar eventos personalizados
+		
 		const handleCartUpdated = () => syncCounts();
 		const handleFavoritesUpdated = () => syncCounts();
-		// Escuchar cambios en localStorage
+		
 		const handleStorage = () => syncCounts();
 
 		window.addEventListener('cartUpdated', handleCartUpdated);
 		window.addEventListener('favoritesUpdated', handleFavoritesUpdated);
 		window.addEventListener('storage', handleStorage);
 
-		// Limpiar listeners
+		
 		return () => {
 			window.removeEventListener('cartUpdated', handleCartUpdated);
 			window.removeEventListener('favoritesUpdated', handleFavoritesUpdated);

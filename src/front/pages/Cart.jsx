@@ -12,7 +12,7 @@ export const Cart = () => {
     }, []);
 
     const fetchCart = () => {
-        // Usar SOLO localStorage
+        
         const localCart = JSON.parse(localStorage.getItem('localCart')) || [];
         const total = localCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
@@ -24,19 +24,19 @@ export const Cart = () => {
     };
 
     const handleRemoveItem = (productId) => {
-        // Eliminar del estado local
+        // Eliminar 
         const currentCart = { ...cart };
         currentCart.items = currentCart.items.filter(item => item.id !== productId);
         currentCart.total = currentCart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
         setCart(currentCart);
 
-        // Actualizar localStorage
+        // Actualizar
         let localCart = JSON.parse(localStorage.getItem('localCart')) || [];
         localCart = localCart.filter(item => item.id !== productId);
         localStorage.setItem('localCart', JSON.stringify(localCart));
 
-        // 👇 Disparar evento para actualizar Navbar
+        
         window.dispatchEvent(new Event('cartUpdated'));
     };
 
@@ -46,7 +46,7 @@ export const Cart = () => {
             return;
         }
 
-        // Actualizar estado local
+        // Actualizar 
         const currentCart = { ...cart };
         currentCart.items = currentCart.items.map(item => {
             if (item.id === productId) {
@@ -58,7 +58,7 @@ export const Cart = () => {
 
         setCart(currentCart);
 
-        // Actualizar localStorage
+        // Actualizar
         let localCart = JSON.parse(localStorage.getItem('localCart')) || [];
         localCart = localCart.map(item => {
             if (item.id === productId) {
@@ -68,7 +68,7 @@ export const Cart = () => {
         });
         localStorage.setItem('localCart', JSON.stringify(localCart));
 
-        // 👇 Disparar evento para actualizar Navbar
+        
         window.dispatchEvent(new Event('cartUpdated'));
     };
 
@@ -76,7 +76,7 @@ export const Cart = () => {
         setCart({ items: [], total: 0 });
         localStorage.removeItem('localCart');
 
-        // 👇 Disparar evento para actualizar Navbar
+        
         window.dispatchEvent(new Event('cartUpdated'));
     };
 
@@ -175,7 +175,7 @@ export const Cart = () => {
                             <i className="fas fa-arrow-left me-2"></i>
                             Continuar Comprando
                         </Link>
-                        {/* REMOVIDO: Botón de vaciar todo de la parte inferior */}
+                        
                     </div>
                 </div>
 
