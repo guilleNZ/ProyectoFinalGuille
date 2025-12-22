@@ -17,7 +17,6 @@ import { Contact } from "./pages/Contact";
 import { Investment } from "./pages/Investment";
 // --- FIN AÑADIDO ---
 import { JoinTeam } from "./pages/JoinTeam";
-
 export const router = createBrowserRouter([
   {
     path: "/",
