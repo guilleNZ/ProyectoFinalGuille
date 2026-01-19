@@ -237,7 +237,6 @@ if __name__ == '__main__':
  """
 
 
-
 import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_migrate import Migrate
